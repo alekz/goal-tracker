@@ -150,9 +150,7 @@ public class GoalTrackerDbAdapter {
      * @return Cursor over all tasks
      */
     public Cursor fetchAllTasks() {
-        return mDb.query(TABLE_TASKS,
-                new String[] { KEY_TASK_ID, KEY_TASK_TITLE,
-                        KEY_TASK_START_VALUE },
+        return mDb.query(TABLE_TASKS, getTaskFields(),
                 null, null, null, null, null);
     }
 
@@ -164,15 +162,22 @@ public class GoalTrackerDbAdapter {
      * @throws SQLException if task could not be found/retrieved
      */
     public Cursor fetchTask(long rowId) throws SQLException {
-        Cursor mCursor = mDb.query(true, TABLE_TASKS,
-                new String[] { KEY_TASK_ID, KEY_TASK_TITLE,
-                        KEY_TASK_START_VALUE },
+        Cursor mCursor = mDb.query(true, TABLE_TASKS, getTaskFields(),
                 KEY_TASK_ID + "=" + rowId,
                 null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
         }
         return mCursor;
+    }
 
+    /**
+     * Returns list of all fields names in table "tasks"
+     * 
+     * @return array with fields names
+     */
+    protected String[] getTaskFields()
+    {
+        return new String[] { KEY_TASK_ID, KEY_TASK_TITLE, KEY_TASK_START_VALUE };
     }
 }
