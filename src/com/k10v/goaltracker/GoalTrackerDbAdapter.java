@@ -25,6 +25,7 @@ public class GoalTrackerDbAdapter {
     public static final String KEY_TASK_ID = "_id";
     public static final String KEY_TASK_TITLE = "title";
     public static final String KEY_TASK_START_VALUE = "start_value";
+    public static final String KEY_TASK_TARGET_VALUE = "target_value";
 
     public static final String KEY_REPORT_ID = "_id";
     public static final String KEY_REPORT_TASK_ID = "task_id";
@@ -45,7 +46,8 @@ public class GoalTrackerDbAdapter {
             db.execSQL("CREATE TABLE tasks ("
                     + "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + "title TEXT NOT NULL, "
-                    + "start_value NUMERIC NOT NULL DEFAULT 0"
+                    + "start_value NUMERIC NOT NULL DEFAULT 0, "
+                    + "target_value NUMERIC DEFAULT NULL"
                     + ")");
             db.execSQL("CREATE INDEX idx_tasks_title ON tasks (title)");
 
@@ -105,12 +107,14 @@ public class GoalTrackerDbAdapter {
      * 
      * @param title the title of the task
      * @param startValue the start value of the task
+     * @param targetValue the target value of the task
      * @return rowId or -1 if failed
      */
-    public long createTask(String title, float startValue) {
+    public long createTask(String title, float startValue, float targetValue) {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_TASK_TITLE, title);
         initialValues.put(KEY_TASK_START_VALUE, startValue);
+        initialValues.put(KEY_TASK_TARGET_VALUE, targetValue);
 
         return mDb.insert(TABLE_TASKS, null, initialValues);
     }
@@ -123,12 +127,15 @@ public class GoalTrackerDbAdapter {
      * @param rowId id of task to update
      * @param title value to set task title to
      * @param startValue value to set task's start value to
+     * @param targetValue value to set task's target value to
      * @return true if the task was successfully updated, false otherwise
      */
-    public boolean updateTask(long rowId, String title, float startValue) {
+    public boolean updateTask(long rowId, String title, float startValue,
+            float targetValue) {
         ContentValues args = new ContentValues();
         args.put(KEY_TASK_TITLE, title);
         args.put(KEY_TASK_START_VALUE, startValue);
+        args.put(KEY_TASK_TARGET_VALUE, targetValue);
 
         return mDb.update(TABLE_TASKS, args, KEY_TASK_ID + "=" + rowId, null) > 0;
     }
@@ -178,6 +185,7 @@ public class GoalTrackerDbAdapter {
      */
     protected String[] getTaskFields()
     {
-        return new String[] { KEY_TASK_ID, KEY_TASK_TITLE, KEY_TASK_START_VALUE };
+        return new String[] { KEY_TASK_ID, KEY_TASK_TITLE,
+                KEY_TASK_START_VALUE, KEY_TASK_TARGET_VALUE };
     }
 }
