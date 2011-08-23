@@ -22,11 +22,11 @@ public class GoalTrackerDbAdapter {
     private static final String TABLE_TASKS = "tasks";
     private static final String TABLE_REPORTS = "reports";
 
-    public static final String KEY_TASK_ID = "id";
+    public static final String KEY_TASK_ID = "_id";
     public static final String KEY_TASK_TITLE = "title";
     public static final String KEY_TASK_START_VALUE = "start_value";
 
-    public static final String KEY_REPORT_ID = "id";
+    public static final String KEY_REPORT_ID = "_id";
     public static final String KEY_REPORT_TASK_ID = "task_id";
     public static final String KEY_REPORT_DATE = "date";
     public static final String KEY_REPORT_RELATIVE = "relative";
@@ -43,7 +43,7 @@ public class GoalTrackerDbAdapter {
 
             // == Tasks ==
             db.execSQL("CREATE TABLE tasks ("
-                    + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + "title TEXT NOT NULL, "
                     + "start_value NUMERIC NOT NULL DEFAULT 0"
                     + ")");
@@ -51,7 +51,7 @@ public class GoalTrackerDbAdapter {
 
             // == Reports ==
             db.execSQL("CREATE TABLE reports ("
-                    + "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                    + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
                     + "task_id INTEGER NOT NULL, "
                     + "date TEXT NOT NULL, "
                     + "relative INTEGER NOT NULL DEFAULT 0, "
