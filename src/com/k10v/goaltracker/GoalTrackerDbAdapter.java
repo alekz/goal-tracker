@@ -1,8 +1,6 @@
 package com.k10v.goaltracker;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -11,27 +9,15 @@ import android.util.Log;
 public class GoalTrackerDbAdapter {
 
     private static final String TAG = "GoalTrackerDbAdapter";
+    private final Context mCtx;
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
-    private final Context mCtx;
+    private TaskPeer taskPeer;
+    private ReportPeer reportPeer;
 
     private static final int DATABASE_VERSION = 0;
 
     private static final String DATABASE_NAME = "goaltracker";
-
-    private static final String TABLE_TASKS = "tasks";
-    private static final String TABLE_REPORTS = "reports";
-
-    public static final String KEY_TASK_ID = "_id";
-    public static final String KEY_TASK_TITLE = "title";
-    public static final String KEY_TASK_START_VALUE = "start_value";
-    public static final String KEY_TASK_TARGET_VALUE = "target_value";
-
-    public static final String KEY_REPORT_ID = "_id";
-    public static final String KEY_REPORT_TASK_ID = "task_id";
-    public static final String KEY_REPORT_DATE = "date";
-    public static final String KEY_REPORT_RELATIVE = "relative";
-    public static final String KEY_REPORT_VALUE = "value";
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -94,6 +80,8 @@ public class GoalTrackerDbAdapter {
     public GoalTrackerDbAdapter open() throws SQLException {
         mDbHelper = new DatabaseHelper(mCtx);
         mDb = mDbHelper.getWritableDatabase();
+        taskPeer = new TaskPeer(this, mDb);
+        reportPeer = new ReportPeer(this, mDb);
         return this;
     }
 
@@ -101,91 +89,11 @@ public class GoalTrackerDbAdapter {
         mDbHelper.close();
     }
 
-    /**
-     * Create a new task. If the task is successfully created return the new
-     * rowId for that task, otherwise return a -1 to indicate failure.
-     * 
-     * @param title the title of the task
-     * @param startValue the start value of the task
-     * @param targetValue the target value of the task
-     * @return rowId or -1 if failed
-     */
-    public long createTask(String title, float startValue, float targetValue) {
-        ContentValues initialValues = new ContentValues();
-        initialValues.put(KEY_TASK_TITLE, title);
-        initialValues.put(KEY_TASK_START_VALUE, startValue);
-        initialValues.put(KEY_TASK_TARGET_VALUE, targetValue);
-
-        return mDb.insert(TABLE_TASKS, null, initialValues);
+    public TaskPeer getTaskPeer() {
+        return taskPeer;
     }
 
-    /**
-     * Update the task using the details provided. The task to be updated is
-     * specified using the rowId, and it is altered to use the title and body
-     * values passed in
-     * 
-     * @param rowId id of task to update
-     * @param title value to set task title to
-     * @param startValue value to set task's start value to
-     * @param targetValue value to set task's target value to
-     * @return true if the task was successfully updated, false otherwise
-     */
-    public boolean updateTask(long rowId, String title, float startValue,
-            float targetValue) {
-        ContentValues args = new ContentValues();
-        args.put(KEY_TASK_TITLE, title);
-        args.put(KEY_TASK_START_VALUE, startValue);
-        args.put(KEY_TASK_TARGET_VALUE, targetValue);
-
-        return mDb.update(TABLE_TASKS, args, KEY_TASK_ID + "=" + rowId, null) > 0;
-    }
-
-    /**
-     * Delete the task with the given rowId
-     * 
-     * @param rowId id of task to delete
-     * @return true if deleted, false otherwise
-     */
-    public boolean deleteTask(long rowId) {
-        mDb.delete(TABLE_REPORTS, KEY_REPORT_TASK_ID + "=" + rowId, null);
-        return mDb.delete(TABLE_TASKS, KEY_TASK_ID + "=" + rowId, null) > 0;
-    }
-
-    /**
-     * Return a Cursor over the list of all tasks in the database
-     * 
-     * @return Cursor over all tasks
-     */
-    public Cursor fetchAllTasks() {
-        return mDb.query(TABLE_TASKS, getTaskFields(),
-                null, null, null, null, null);
-    }
-
-    /**
-     * Return a Cursor positioned at the task that matches the given rowId
-     * 
-     * @param rowId id of task to retrieve
-     * @return Cursor positioned to matching task, if found
-     * @throws SQLException if task could not be found/retrieved
-     */
-    public Cursor fetchTask(long rowId) throws SQLException {
-        Cursor mCursor = mDb.query(true, TABLE_TASKS, getTaskFields(),
-                KEY_TASK_ID + "=" + rowId,
-                null, null, null, null, null);
-        if (mCursor != null) {
-            mCursor.moveToFirst();
-        }
-        return mCursor;
-    }
-
-    /**
-     * Returns list of all fields names in table "tasks"
-     * 
-     * @return array with fields names
-     */
-    protected String[] getTaskFields()
-    {
-        return new String[] { KEY_TASK_ID, KEY_TASK_TITLE,
-                KEY_TASK_START_VALUE, KEY_TASK_TARGET_VALUE };
+    public ReportPeer getReportPeer() {
+        return reportPeer;
     }
 }
