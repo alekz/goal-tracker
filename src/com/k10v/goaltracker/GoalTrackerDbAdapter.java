@@ -15,7 +15,7 @@ public class GoalTrackerDbAdapter {
     private TaskPeer taskPeer;
     private ReportPeer reportPeer;
 
-    private static final int DATABASE_VERSION = 0;
+    private static final int DATABASE_VERSION = 1;
 
     private static final String DATABASE_NAME = "goaltracker";
 
@@ -30,7 +30,7 @@ public class GoalTrackerDbAdapter {
 
             // == Tasks ==
             db.execSQL("CREATE TABLE tasks ("
-                    + "_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
                     + "title TEXT NOT NULL, "
                     + "start_value NUMERIC NOT NULL DEFAULT 0, "
                     + "target_value NUMERIC DEFAULT NULL"
