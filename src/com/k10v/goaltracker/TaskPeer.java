@@ -21,56 +21,72 @@ public class TaskPeer extends BasePeer {
     /**
      * Create a new task. If the task is successfully created return the new
      * rowId for that task, otherwise return a -1 to indicate failure.
-     * 
-     * @param title the title of the task
-     * @param startValue the start value of the task
-     * @param targetValue the target value of the task
+     *
+     * @param title
+     * @param startValue
+     * @param targetValue
      * @return rowId or -1 if failed
      */
     public long createTask(String title, float startValue, float targetValue) {
-        ContentValues initialValues = new ContentValues();
-        initialValues.put(KEY_TITLE, title);
-        initialValues.put(KEY_START_VALUE, startValue);
-        initialValues.put(KEY_TARGET_VALUE, targetValue);
 
-        return mDb.insert(TABLE, null, initialValues);
+        ContentValues values = createContentValues(title, startValue,
+                targetValue);
+
+        return mDb.insert(TABLE, null, values);
     }
 
     /**
-     * Update the task using the details provided. The task to be updated is
-     * specified using the rowId, and it is altered to use the title and body
-     * values passed in
+     * Update the task with given ID using the details provided.
      * 
-     * @param rowId id of task to update
-     * @param title value to set task title to
-     * @param startValue value to set task's start value to
-     * @param targetValue value to set task's target value to
+     * @param rowId
+     * @param title
+     * @param startValue
+     * @param targetValue
      * @return true if the task was successfully updated, false otherwise
      */
     public boolean updateTask(long rowId, String title, float startValue,
             float targetValue) {
-        ContentValues args = new ContentValues();
-        args.put(KEY_TITLE, title);
-        args.put(KEY_START_VALUE, startValue);
-        args.put(KEY_TARGET_VALUE, targetValue);
 
-        return mDb.update(TABLE, args, KEY_ID + "=" + rowId, null) > 0;
+        ContentValues values = createContentValues(title, startValue,
+                targetValue);
+
+        return mDb.update(TABLE, values, KEY_ID + "=" + rowId, null) > 0;
+    }
+
+    /**
+     * Creates ContentValues object and fills it with the given values.
+     * 
+     * @param title
+     * @param startValue
+     * @param targetValue
+     * @return ContentValues object filled with the given values
+     */
+    private ContentValues createContentValues(String title, float startValue,
+            float targetValue) {
+
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_TITLE, title);
+        values.put(KEY_START_VALUE, startValue);
+        values.put(KEY_TARGET_VALUE, targetValue);
+
+        return values;
     }
 
     /**
      * Delete the task with the given rowId
-     * 
+     *
      * @param rowId id of task to delete
      * @return true if deleted, false otherwise
      */
     public boolean deleteTask(long rowId) {
-        mDb.delete(ReportPeer.TABLE, ReportPeer.KEY_TASK_ID + "=" + rowId, null);
+        dbAdapter.getReportPeer().deleteReportsByTask(rowId);
         return mDb.delete(TABLE, KEY_ID + "=" + rowId, null) > 0;
     }
 
     /**
      * Return a Cursor over the list of all tasks in the database
-     * 
+     *
      * @return Cursor over all tasks
      */
     public Cursor fetchAllTasks() {
@@ -79,7 +95,7 @@ public class TaskPeer extends BasePeer {
 
     /**
      * Return a Cursor positioned at the task that matches the given rowId
-     * 
+     *
      * @param rowId id of task to retrieve
      * @return Cursor positioned to matching task, if found
      * @throws SQLException if task could not be found/retrieved
@@ -96,7 +112,7 @@ public class TaskPeer extends BasePeer {
 
     /**
      * Returns list of all fields names in the table
-     * 
+     *
      * @return array with fields names
      */
     protected String[] getFields()
