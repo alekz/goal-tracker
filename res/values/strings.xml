@@ -3,4 +3,8 @@
     <string name="app_name">Goal Tracker</string>
     <string name="no_tasks">No tasks yet</string>
     <string name="menu_add_task">Create Task</string>
+    <string name="task_title">Title</string>
+    <string name="task_start_value">Start value</string>
+    <string name="task_target_value">Target value</string>
+    <string name="button_save_task">Save</string>
 </resources>
