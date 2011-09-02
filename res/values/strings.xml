@@ -7,4 +7,5 @@
     <string name="task_start_value">Start value</string>
     <string name="task_target_value">Target value</string>
     <string name="button_save_task">Save</string>
+    <string name="title_edit_task">Edit Task</string>
 </resources>

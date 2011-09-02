@@ -27,7 +27,7 @@ public class TaskPeer extends BasePeer {
      * @param targetValue
      * @return rowId or -1 if failed
      */
-    public long createTask(String title, float startValue, float targetValue) {
+    public long createTask(String title, float startValue, Float targetValue) {
 
         ContentValues values = createContentValues(title, startValue,
                 targetValue);
@@ -45,7 +45,7 @@ public class TaskPeer extends BasePeer {
      * @return true if the task was successfully updated, false otherwise
      */
     public boolean updateTask(long rowId, String title, float startValue,
-            float targetValue) {
+            Float targetValue) {
 
         ContentValues values = createContentValues(title, startValue,
                 targetValue);
@@ -62,7 +62,7 @@ public class TaskPeer extends BasePeer {
      * @return ContentValues object filled with the given values
      */
     private ContentValues createContentValues(String title, float startValue,
-            float targetValue) {
+            Float targetValue) {
 
         ContentValues values = new ContentValues();
 
