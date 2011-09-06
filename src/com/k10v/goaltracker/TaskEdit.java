@@ -47,8 +47,8 @@ public class TaskEdit extends Activity {
         mRowId = extras.getLong(TaskPeer.KEY_ID);
 
         String title = extras.getString(TaskPeer.KEY_TITLE);
-        Long startValue = extras.getLong(TaskPeer.KEY_START_VALUE);
-        Long targetValue = extras.getLong(TaskPeer.KEY_TARGET_VALUE);
+        Double startValue = extras.getDouble(TaskPeer.KEY_START_VALUE);
+        Double targetValue = extras.getDouble(TaskPeer.KEY_TARGET_VALUE);
 
         if (title != null) {
             mTitle.setText(title);
@@ -79,12 +79,11 @@ public class TaskEdit extends Activity {
                 extras.putString(TaskPeer.KEY_TITLE,
                         mTitle.getText().toString());
 
-                extras.putFloat(TaskPeer.KEY_START_VALUE,
-                        Float.valueOf(mStartValue.getText().toString()));
-
+                extras.putDouble(TaskPeer.KEY_START_VALUE,
+                        Double.valueOf(mStartValue.getText().toString()));
                 // TODO: target value can be null
-                extras.putFloat(TaskPeer.KEY_TARGET_VALUE,
-                        Float.valueOf(mTargetValue.getText().toString()));
+                extras.putDouble(TaskPeer.KEY_TARGET_VALUE,
+                        Double.valueOf(mTargetValue.getText().toString()));
 
                 if (mRowId != null) {
                     extras.putLong(TaskPeer.KEY_ID, mRowId);

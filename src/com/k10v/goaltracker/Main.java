@@ -141,16 +141,15 @@ public class Main extends ListActivity {
     /**
      * Called after new task's details are entered. Creates a new task using
      * returned data and reloads the list of tasks.
-     * 
+     *
      * @param extras Extra data returned by Intent
      */
     private void onCreateTask(Bundle extras) {
 
         String title = extras.getString(TaskPeer.KEY_TITLE);
-        float startValue = extras.getFloat(TaskPeer.KEY_START_VALUE);
-        // Target value can be null
-        Float targetValue = extras.getFloat(TaskPeer.KEY_TARGET_VALUE,
-                (Float) null);
+        double startValue = extras.getDouble(TaskPeer.KEY_START_VALUE);
+        // TODO: Target value can be null
+        Double targetValue = extras.getDouble(TaskPeer.KEY_TARGET_VALUE);
         mDbHelper.getTaskPeer().createTask(title, startValue, targetValue);
 
         fillTasksList();
@@ -159,7 +158,7 @@ public class Main extends ListActivity {
     /**
      * Called after task details are changed. Updates existing task in the
      * database using returned data and reloads the list of tasks.
-     * 
+     *
      * @param extras Extra data returned by Intent
      */
     private void onEditTask(Bundle extras) {
@@ -167,10 +166,9 @@ public class Main extends ListActivity {
         Long rowId = extras.getLong(TaskPeer.KEY_ID);
         if (rowId != null) {
             String title = extras.getString(TaskPeer.KEY_TITLE);
-            float startValue = extras.getFloat(TaskPeer.KEY_START_VALUE);
-            // Target value can be null
-            Float targetValue = extras.getFloat(TaskPeer.KEY_TARGET_VALUE,
-                    (Float) null);
+            double startValue = extras.getDouble(TaskPeer.KEY_START_VALUE);
+            // TODO: Target value can be null
+            Double targetValue = extras.getDouble(TaskPeer.KEY_TARGET_VALUE);
             mDbHelper.getTaskPeer().updateTask(rowId, title, startValue,
                     targetValue);
         }
@@ -188,7 +186,7 @@ public class Main extends ListActivity {
 
     /**
      * Runs "Edit Task" activity for the task with given ID
-     * 
+     *
      * @param rowId ID of the task to edit
      */
     private void runEditTask(long rowId) {
@@ -207,16 +205,16 @@ public class Main extends ListActivity {
         i.putExtra(TaskPeer.KEY_TITLE,
                 c.getString(c.getColumnIndexOrThrow(TaskPeer.KEY_TITLE)));
         i.putExtra(TaskPeer.KEY_START_VALUE,
-                c.getFloat(c.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE)));
+                c.getDouble(c.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE)));
         i.putExtra(TaskPeer.KEY_TARGET_VALUE,
-                c.getFloat(c.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE)));
+                c.getDouble(c.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE)));
 
         startActivityForResult(i, ACTIVITY_EDIT_TASK);
     }
 
     /**
      * Deletes task with given ID and reloads the list of tasks.
-     * 
+     *
      * @param rowId ID of the task to delete
      */
     private void runDeleteTask(long rowId) {

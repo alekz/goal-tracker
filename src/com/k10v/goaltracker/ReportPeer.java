@@ -29,7 +29,7 @@ public class ReportPeer extends BasePeer {
      * @param relative
      * @return rowId or -1 if failed
      */
-    public long createReport(long taskId, String date, float value,
+    public long createReport(long taskId, String date, double value,
             boolean relative) {
 
         ContentValues values = new ContentValues();
@@ -51,7 +51,7 @@ public class ReportPeer extends BasePeer {
      * @param relative
      * @return true if the report was successfully updated, false otherwise
      */
-    public boolean updateReport(long rowId, String date, float value,
+    public boolean updateReport(long rowId, String date, double value,
             boolean relative) {
 
         ContentValues values = new ContentValues();
