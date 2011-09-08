@@ -1,7 +1,7 @@
 package com.k10v.goaltracker;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,58 +9,82 @@ import android.widget.EditText;
 
 public class TaskEdit extends Activity {
 
+    private GoalTrackerDbAdapter mDbHelper;
+
     private Long mRowId;
-    private EditText mTitle;
-    private EditText mStartValue;
-    private EditText mTargetValue;
+    private EditText mTitleText;
+    private EditText mStartValueText;
+    private EditText mTargetValueText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
+        // Prepare DB adapter
+        mDbHelper = new GoalTrackerDbAdapter(this);
+        mDbHelper.open();
+
+        // Setup the View
         setContentView(R.layout.task_edit);
         setTitle(R.string.title_edit_task);
-        initForm();
-        fillForm();
+
+        // Find form inputs
+        mTitleText = (EditText) findViewById(R.id.task_title);
+        mStartValueText = (EditText) findViewById(R.id.task_start_value);
+        mTargetValueText = (EditText) findViewById(R.id.task_target_value);
+
+        // Retrieve task ID: first check if it's stored in saved state, if not
+        // then check Intent's extras. If ID is empty, we will create a new task
+        // rather than edit an existing one
+        mRowId = (savedInstanceState == null) ? null :
+                (Long) savedInstanceState.getSerializable(TaskPeer.KEY_ID);
+        if (mRowId == null) {
+            Bundle extras = getIntent().getExtras();
+            mRowId = (extras == null) ? null : extras.getLong(TaskPeer.KEY_ID);
+        }
+
+        populateFields();
+
         setupListeners();
     }
 
-    /**
-     * Initialize form elements
-     */
-    private void initForm() {
-        mRowId = null;
-        mTitle = (EditText) findViewById(R.id.task_title);
-        mStartValue = (EditText) findViewById(R.id.task_start_value);
-        mTargetValue = (EditText) findViewById(R.id.task_target_value);
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveState();
+        outState.putSerializable(TaskPeer.KEY_ID, mRowId);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        populateFields();
     }
 
     /**
-     * Fill form with data from the Intent
+     * Fill form with data from the database
      */
-    private void fillForm() {
+    private void populateFields() {
 
-        Bundle extras = getIntent().getExtras();
-        if (extras == null) {
+        if (mRowId == null) {
             return;
         }
 
-        mRowId = extras.getLong(TaskPeer.KEY_ID);
-
-        String title = extras.getString(TaskPeer.KEY_TITLE);
-        Double startValue = extras.getDouble(TaskPeer.KEY_START_VALUE);
-        Double targetValue = extras.getDouble(TaskPeer.KEY_TARGET_VALUE);
-
-        if (title != null) {
-            mTitle.setText(title);
-        }
-
-        if (startValue != null) {
-            mStartValue.setText(startValue.toString());
-        }
-
-        if (targetValue != null) {
-            mTargetValue.setText(targetValue.toString());
-        }
+        Cursor c = mDbHelper.getTaskPeer().fetchTask(mRowId);
+        startManagingCursor(c);
+        mTitleText.setText(c.getString(
+                c.getColumnIndexOrThrow(TaskPeer.KEY_TITLE)));
+        mStartValueText.setText(c.getString(
+                c.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE)));
+        mTargetValueText.setText(c.getString(
+                c.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE)));
     }
 
     /**
@@ -71,30 +95,32 @@ public class TaskEdit extends Activity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // Prepare return data and finish the Activity
-
-                Bundle extras = new Bundle();
-
-                extras.putString(TaskPeer.KEY_TITLE,
-                        mTitle.getText().toString());
-
-                extras.putDouble(TaskPeer.KEY_START_VALUE,
-                        Double.valueOf(mStartValue.getText().toString()));
-                // TODO: target value can be null
-                extras.putDouble(TaskPeer.KEY_TARGET_VALUE,
-                        Double.valueOf(mTargetValue.getText().toString()));
-
-                if (mRowId != null) {
-                    extras.putLong(TaskPeer.KEY_ID, mRowId);
-                }
-
-                Intent intent = new Intent();
-                intent.putExtras(extras);
-                setResult(RESULT_OK, intent);
-                finish();
-
+                setResult(RESULT_OK);
+                finish(); // eventually calls onPause() and onStop()
             }
         });
+    }
+
+    /**
+     * Save result to the database
+     */
+    private void saveState() {
+
+        String title = mTitleText.getText().toString();
+        Double startValue = Double.valueOf(
+                mStartValueText.getText().toString());
+        Double targetValue = Double.valueOf(
+                mTargetValueText.getText().toString());
+
+        if (mRowId == null) {
+            long id = mDbHelper.getTaskPeer().createTask(
+                    title, startValue, targetValue);
+            if (id > 0) {
+                mRowId = id;
+            }
+        } else {
+            mDbHelper.getTaskPeer().updateTask(
+                    mRowId, title, startValue, targetValue);
+        }
     }
 }

@@ -3,7 +3,6 @@ package com.k10v.goaltracker;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -121,58 +120,6 @@ public class Main extends ListActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
             Intent intent) {
-
-        super.onActivityResult(requestCode, resultCode, intent);
-        Bundle extras = intent.getExtras();
-
-        switch (requestCode) {
-
-        case ACTIVITY_CREATE_TASK:
-            onCreateTask(extras);
-            break;
-
-        case ACTIVITY_EDIT_TASK:
-            onEditTask(extras);
-            break;
-
-        }
-    }
-
-    /**
-     * Called after new task's details are entered. Creates a new task using
-     * returned data and reloads the list of tasks.
-     *
-     * @param extras Extra data returned by Intent
-     */
-    private void onCreateTask(Bundle extras) {
-
-        String title = extras.getString(TaskPeer.KEY_TITLE);
-        double startValue = extras.getDouble(TaskPeer.KEY_START_VALUE);
-        // TODO: Target value can be null
-        Double targetValue = extras.getDouble(TaskPeer.KEY_TARGET_VALUE);
-        mDbHelper.getTaskPeer().createTask(title, startValue, targetValue);
-
-        fillTasksList();
-    }
-
-    /**
-     * Called after task details are changed. Updates existing task in the
-     * database using returned data and reloads the list of tasks.
-     *
-     * @param extras Extra data returned by Intent
-     */
-    private void onEditTask(Bundle extras) {
-
-        Long rowId = extras.getLong(TaskPeer.KEY_ID);
-        if (rowId != null) {
-            String title = extras.getString(TaskPeer.KEY_TITLE);
-            double startValue = extras.getDouble(TaskPeer.KEY_START_VALUE);
-            // TODO: Target value can be null
-            Double targetValue = extras.getDouble(TaskPeer.KEY_TARGET_VALUE);
-            mDbHelper.getTaskPeer().updateTask(rowId, title, startValue,
-                    targetValue);
-        }
-
         fillTasksList();
     }
 
@@ -190,25 +137,8 @@ public class Main extends ListActivity {
      * @param rowId ID of the task to edit
      */
     private void runEditTask(long rowId) {
-
-        // Check if record with that ID exists
-        Cursor c;
-        try {
-            c = mDbHelper.getTaskPeer().fetchTask(rowId);
-        } catch (SQLException e) {
-            return;
-        }
-
-        // Fill Intent object with task data and start editing activity
         Intent i = new Intent(this, TaskEdit.class);
         i.putExtra(TaskPeer.KEY_ID, rowId);
-        i.putExtra(TaskPeer.KEY_TITLE,
-                c.getString(c.getColumnIndexOrThrow(TaskPeer.KEY_TITLE)));
-        i.putExtra(TaskPeer.KEY_START_VALUE,
-                c.getDouble(c.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE)));
-        i.putExtra(TaskPeer.KEY_TARGET_VALUE,
-                c.getDouble(c.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE)));
-
         startActivityForResult(i, ACTIVITY_EDIT_TASK);
     }
 
