@@ -23,6 +23,7 @@ public class Main extends ListActivity {
     public static final int MENU_ID_DELETE_TASK = Menu.FIRST + 2;
 
     private GoalTrackerDbAdapter mDbHelper;
+    private Cursor mTasksCursor;
 
     /**
      * Called when the activity is first created.
@@ -73,6 +74,14 @@ public class Main extends ListActivity {
 
         super.onCreateContextMenu(menu, v, menuInfo);
 
+        // Set menu title
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        Cursor c = mTasksCursor;
+        c.moveToPosition(info.position);
+        String title = c.getString(c.getColumnIndexOrThrow(TaskPeer.KEY_TITLE));
+        menu.setHeaderTitle(title);
+
+        // Add menmu items
         menu.add(0, MENU_ID_EDIT_TASK, 0, R.string.menu_edit_task);
         menu.add(0, MENU_ID_DELETE_TASK, 1, R.string.menu_delete_task);
     }
@@ -156,14 +165,14 @@ public class Main extends ListActivity {
      * Fills/reloads the list of tasks.
      */
     private void fillTasksList() {
-        Cursor c = mDbHelper.getTaskPeer().fetchAllTasks();
-        startManagingCursor(c);
+        mTasksCursor = mDbHelper.getTaskPeer().fetchAllTasks();
+        startManagingCursor(mTasksCursor);
 
         String[] from = new String[] { TaskPeer.KEY_TITLE };
         int[] to = new int[] { R.id.tasks_row_text };
 
         SimpleCursorAdapter tasks = new SimpleCursorAdapter(this,
-                R.layout.tasks_row, c, from, to);
+                R.layout.tasks_row, mTasksCursor, from, to);
         setListAdapter(tasks);
     }
 }
