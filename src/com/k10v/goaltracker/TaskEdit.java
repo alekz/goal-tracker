@@ -7,6 +7,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+// TODO: save when pressing back button
+// TODO: show notification when form is saved
+// TODO: handle empty/invalid form values
+
 public class TaskEdit extends Activity {
 
     private GoalTrackerDbAdapter mDbHelper;
@@ -49,23 +53,16 @@ public class TaskEdit extends Activity {
         setupListeners();
     }
 
+    /**
+     * Called when activity state should be temporarily saved, for example when
+     * activity is about to be killed in order to retrieve system resources
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        saveState();
         outState.putSerializable(TaskPeer.KEY_ID, mRowId);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        saveState();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        populateFields();
+        // We don't need to save form values because this is handled
+        // automatically for every View object
     }
 
     /**
@@ -91,20 +88,34 @@ public class TaskEdit extends Activity {
      * Set up listeners for form buttons
      */
     private void setupListeners() {
+
+        // "Save" button
         Button confirmButton = (Button) findViewById(R.id.button_save_task);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setResult(RESULT_OK);
+                saveForm();
                 finish(); // eventually calls onPause() and onStop()
             }
         });
+
+        // "Cancel" button
+        Button cancelButton = (Button) findViewById(R.id.button_cancel_edit_task);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_CANCELED);
+                finish(); // eventually calls onPause() and onStop()
+            }
+        });
+
     }
 
     /**
-     * Save result to the database
+     * Save form data to the database
      */
-    private void saveState() {
+    private void saveForm() {
 
         String title = mTitleText.getText().toString();
         Double startValue = Double.valueOf(
