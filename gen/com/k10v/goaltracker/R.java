@@ -34,6 +34,9 @@ public final class R {
         public static final int menu_add_task=0x7f040002;
         public static final int menu_delete_task=0x7f040004;
         public static final int menu_edit_task=0x7f040003;
+        public static final int message_task_created=0x7f04000b;
+        public static final int message_task_deleted=0x7f04000d;
+        public static final int message_task_updated=0x7f04000c;
         public static final int no_tasks=0x7f040001;
         public static final int task_start_value=0x7f040006;
         public static final int task_target_value=0x7f040007;

@@ -12,6 +12,9 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
+
+// TODO: ask confirmation when deleting task
 
 public class Main extends ListActivity {
 
@@ -157,7 +160,16 @@ public class Main extends ListActivity {
      * @param rowId ID of the task to delete
      */
     private void runDeleteTask(long rowId) {
+
+        // Delete the task
         mDbHelper.getTaskPeer().deleteTask(rowId);
+
+        // Show message
+        Toast toast = Toast.makeText(getApplicationContext(),
+                R.string.message_task_deleted, Toast.LENGTH_SHORT);
+        toast.show();
+
+        // Update the list
         fillTasksList();
     }
 

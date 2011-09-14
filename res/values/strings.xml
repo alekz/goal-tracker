@@ -11,4 +11,7 @@
     <string name="button_save_task">Save</string>
     <string name="button_cancel_edit_task">Cancel</string>
     <string name="title_edit_task">Edit Task</string>
+    <string name="message_task_created">New task has been created</string>
+    <string name="message_task_updated">Task has been updated</string>
+    <string name="message_task_deleted">Task has been deleted</string>
 </resources>

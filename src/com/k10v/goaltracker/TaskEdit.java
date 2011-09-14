@@ -6,9 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
-// TODO: save when pressing back button
-// TODO: show notification when form is saved
 // TODO: handle empty/invalid form values
 
 public class TaskEdit extends Activity {
@@ -126,13 +125,16 @@ public class TaskEdit extends Activity {
      */
     private void saveForm() {
 
+        // Get field values from the form elements
         String title = mTitleText.getText().toString();
         Double startValue = Double.valueOf(
                 mStartValueText.getText().toString());
         Double targetValue = Double.valueOf(
                 mTargetValueText.getText().toString());
 
-        if (mRowId == null) {
+        // Create or update the task
+        boolean isNewTask = (mRowId == null);
+        if (isNewTask) {
             long id = mDbHelper.getTaskPeer().createTask(
                     title, startValue, targetValue);
             if (id > 0) {
@@ -142,5 +144,13 @@ public class TaskEdit extends Activity {
             mDbHelper.getTaskPeer().updateTask(
                     mRowId, title, startValue, targetValue);
         }
+
+        // Show toast notification
+        int toastMessageId = isNewTask ?
+                R.string.message_task_created :
+                R.string.message_task_updated;
+        Toast toast = Toast.makeText(getApplicationContext(), toastMessageId,
+                Toast.LENGTH_SHORT);
+        toast.show();
     }
 }
