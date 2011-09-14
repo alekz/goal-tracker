@@ -113,6 +113,15 @@ public class TaskEdit extends Activity {
     }
 
     /**
+     * Save the form when "Back" key pressed
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        saveForm();
+    }
+
+    /**
      * Save form data to the database
      */
     private void saveForm() {
