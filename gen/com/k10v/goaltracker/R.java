@@ -29,18 +29,21 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f040000;
-        public static final int button_cancel_edit_task=0x7f040009;
-        public static final int button_save_task=0x7f040008;
-        public static final int menu_add_task=0x7f040002;
-        public static final int menu_delete_task=0x7f040004;
-        public static final int menu_edit_task=0x7f040003;
-        public static final int message_task_created=0x7f04000b;
-        public static final int message_task_deleted=0x7f04000d;
-        public static final int message_task_updated=0x7f04000c;
-        public static final int no_tasks=0x7f040001;
-        public static final int task_start_value=0x7f040006;
-        public static final int task_target_value=0x7f040007;
-        public static final int task_title=0x7f040005;
-        public static final int title_edit_task=0x7f04000a;
+        public static final int button_cancel_edit_task=0x7f04000b;
+        public static final int button_no=0x7f040002;
+        public static final int button_save_task=0x7f04000a;
+        public static final int button_yes=0x7f040001;
+        public static final int menu_add_task=0x7f040004;
+        public static final int menu_delete_task=0x7f040006;
+        public static final int menu_edit_task=0x7f040005;
+        public static final int message_confirm_delete_task=0x7f040010;
+        public static final int message_task_created=0x7f04000d;
+        public static final int message_task_deleted=0x7f04000f;
+        public static final int message_task_updated=0x7f04000e;
+        public static final int no_tasks=0x7f040003;
+        public static final int task_start_value=0x7f040008;
+        public static final int task_target_value=0x7f040009;
+        public static final int task_title=0x7f040007;
+        public static final int title_edit_task=0x7f04000c;
     }
 }

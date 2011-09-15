@@ -1,6 +1,9 @@
 package com.k10v.goaltracker;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -14,12 +17,14 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-// TODO: ask confirmation when deleting task
+// TODO: showDialog() is deprecated
 
 public class Main extends ListActivity {
 
     private static final int ACTIVITY_CREATE_TASK = 0;
     private static final int ACTIVITY_EDIT_TASK = 1;
+
+    private static final int DIALOG_CONFIRM_DELETE_TASK_ID = 1;
 
     public static final int MENU_ID_ADD_TASK = Menu.FIRST;
     public static final int MENU_ID_EDIT_TASK = Menu.FIRST + 1;
@@ -27,6 +32,14 @@ public class Main extends ListActivity {
 
     private GoalTrackerDbAdapter mDbHelper;
     private Cursor mTasksCursor;
+
+    /**
+     * Used for "Delete Task" operation.
+     * 
+     * TODO: rewrite it in a cleaner way, because this looks like a hack (the
+     * reason behind that is that confirmation dialog can't receive parameters)
+     */
+    private long rowIdToDelete;
 
     /**
      * Called when the activity is first created.
@@ -135,6 +148,57 @@ public class Main extends ListActivity {
         fillTasksList();
     }
 
+
+    /**
+     * Creates dialogs (confirmations etc.)
+     */
+    @Override
+    protected Dialog onCreateDialog(int id) {
+
+        Dialog dialog;
+
+        switch (id) {
+
+        // Confirmation dialog for "Delete Task"
+        case DIALOG_CONFIRM_DELETE_TASK_ID:
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder
+                    // Title
+                    .setMessage(R.string.message_confirm_delete_task)
+
+                    // "Yes" button
+                    .setPositiveButton(R.string.button_yes,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                        int which) {
+                                    doDeleteTask(rowIdToDelete);
+                                    dialog.dismiss();
+                                }
+                            })
+
+                    // "No" button
+                    .setNegativeButton(R.string.button_no,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog,
+                                        int which) {
+                                    dialog.cancel();
+                                }
+                            });
+
+            dialog = builder.create();
+            break;
+
+        default:
+            dialog = null;
+            break;
+
+        }
+
+        return dialog;
+    }
+
     /**
      * Runs "Create Task" activity
      */
@@ -155,11 +219,23 @@ public class Main extends ListActivity {
     }
 
     /**
-     * Deletes task with given ID and reloads the list of tasks.
-     *
+     * Launches confirmation dialog asking is user really wants to delete the
+     * task, then deletes it if user confirms
+     * 
      * @param rowId ID of the task to delete
      */
     private void runDeleteTask(long rowId) {
+        rowIdToDelete = rowId;
+        showDialog(DIALOG_CONFIRM_DELETE_TASK_ID);
+    }
+
+    /**
+     * Actually deletes task with given ID and reloads the list of tasks.
+     * Shouldn't be called directly, use runDeleteTask() instead.
+     * 
+     * @param rowId ID of the task to delete
+     */
+    private void doDeleteTask(long rowId) {
 
         // Delete the task
         mDbHelper.getTaskPeer().deleteTask(rowId);
@@ -171,6 +247,7 @@ public class Main extends ListActivity {
 
         // Update the list
         fillTasksList();
+
     }
 
     /**
