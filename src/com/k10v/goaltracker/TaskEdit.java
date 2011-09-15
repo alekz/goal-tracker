@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 // TODO: handle empty/invalid form values
+// TODO: don't show "Task updated" message if nothing has changed
 
 public class TaskEdit extends Activity {
 
