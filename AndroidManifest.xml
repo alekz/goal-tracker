@@ -14,6 +14,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".TaskEdit"></activity>
+        <activity android:name=".ReportList"></activity>
 
     </application>
 </manifest>

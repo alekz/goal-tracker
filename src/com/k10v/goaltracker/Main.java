@@ -23,12 +23,14 @@ public class Main extends ListActivity {
 
     private static final int ACTIVITY_CREATE_TASK = 0;
     private static final int ACTIVITY_EDIT_TASK = 1;
+    private static final int ACTIVITY_VIEW_TASK_REPORTS = 2;
 
     private static final int DIALOG_CONFIRM_DELETE_TASK_ID = 1;
 
     public static final int MENU_ID_ADD_TASK = Menu.FIRST;
     public static final int MENU_ID_EDIT_TASK = Menu.FIRST + 1;
     public static final int MENU_ID_DELETE_TASK = Menu.FIRST + 2;
+    public static final int MENU_ID_VIEW_TASK_REPORTS = Menu.FIRST + 3;
 
     private GoalTrackerDbAdapter mDbHelper;
     private Cursor mTasksCursor;
@@ -47,7 +49,7 @@ public class Main extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.task_list);
         mDbHelper = new GoalTrackerDbAdapter(this);
         mDbHelper.open();
         fillTasksList();
@@ -97,9 +99,11 @@ public class Main extends ListActivity {
         String title = c.getString(c.getColumnIndexOrThrow(TaskPeer.KEY_TITLE));
         menu.setHeaderTitle(title);
 
-        // Add menmu items
-        menu.add(0, MENU_ID_EDIT_TASK, 0, R.string.menu_edit_task);
-        menu.add(0, MENU_ID_DELETE_TASK, 1, R.string.menu_delete_task);
+        // Add menu items
+        menu.add(0, MENU_ID_VIEW_TASK_REPORTS, 0,
+                R.string.menu_view_task_reports);
+        menu.add(0, MENU_ID_EDIT_TASK, 1, R.string.menu_edit_task);
+        menu.add(0, MENU_ID_DELETE_TASK, 2, R.string.menu_delete_task);
     }
 
     /**
@@ -114,6 +118,10 @@ public class Main extends ListActivity {
         long rowId = info.id;
 
         switch (item.getItemId()) {
+
+        case MENU_ID_VIEW_TASK_REPORTS:
+            runViewTaskReports(rowId);
+            return true;
 
         case MENU_ID_EDIT_TASK:
             runEditTask(rowId);
@@ -133,10 +141,8 @@ public class Main extends ListActivity {
      */
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-
         super.onListItemClick(l, v, position, id);
-
-        runEditTask(id);
+        runViewTaskReports(id);
     }
 
     /**
@@ -200,6 +206,17 @@ public class Main extends ListActivity {
     }
 
     /**
+     * Displays list of task reports
+     * 
+     * @param rowId
+     */
+    private void runViewTaskReports(long rowId) {
+        Intent i = new Intent(this, ReportList.class);
+        i.putExtra(ReportPeer.KEY_TASK_ID, rowId);
+        startActivityForResult(i, ACTIVITY_VIEW_TASK_REPORTS);
+    }
+
+    /**
      * Runs "Create Task" activity
      */
     private void runCreateTask() {
@@ -258,10 +275,10 @@ public class Main extends ListActivity {
         startManagingCursor(mTasksCursor);
 
         String[] from = new String[] { TaskPeer.KEY_TITLE };
-        int[] to = new int[] { R.id.tasks_row_text };
+        int[] to = new int[] { R.id.task_row_text };
 
         SimpleCursorAdapter tasks = new SimpleCursorAdapter(this,
-                R.layout.tasks_row, mTasksCursor, from, to);
+                R.layout.task_row, mTasksCursor, from, to);
         setListAdapter(tasks);
     }
 }

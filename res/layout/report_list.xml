@@ -12,6 +12,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="center"
-        android:text="@string/no_tasks"
+        android:text="@string/message_no_reports"
         style="@android:style/TextAppearance.Large"/>
 </LinearLayout>

@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Global -->
     <string name="app_name">Goal Tracker</string>
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
-    <string name="no_tasks">No tasks yet</string>
+
+    <!-- List of tasks -->
+    <string name="message_no_tasks">No tasks yet</string>
     <string name="menu_add_task">Create Task</string>
     <string name="menu_edit_task">Edit Task</string>
     <string name="menu_delete_task">Delete Task</string>
+    <string name="menu_view_task_reports">View Reports</string>
+
+    <!-- Edit task -->
+    <string name="title_edit_task">Edit Task</string>
     <string name="task_title">Title</string>
     <string name="task_start_value">Start value</string>
     <string name="task_target_value">Target value</string>
     <string name="button_save_task">Save</string>
     <string name="button_cancel_edit_task">Cancel</string>
-    <string name="title_edit_task">Edit Task</string>
     <string name="message_task_created">New task has been created</string>
     <string name="message_task_updated">Task has been updated</string>
     <string name="message_task_deleted">Task has been deleted</string>
     <string name="message_confirm_delete_task">Are you sure you want to delete this task?</string>
+
+    <!-- List of reports -->
+    <string name="message_no_reports">No reports yet</string>
+    <string name="menu_add_report">Add Report</string>
+    <string name="menu_edit_report">Edit Report</string>
+    <string name="menu_delete_report">Delete Report</string>
+
 </resources>
