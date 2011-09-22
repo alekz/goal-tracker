@@ -8,7 +8,7 @@
 
     <!-- List of tasks -->
     <string name="message_no_tasks">No tasks yet</string>
-    <string name="menu_add_task">Create Task</string>
+    <string name="menu_create_task">Create Task</string>
     <string name="menu_edit_task">Edit Task</string>
     <string name="menu_delete_task">Delete Task</string>
     <string name="menu_view_task_reports">View Reports</string>
@@ -27,8 +27,19 @@
 
     <!-- List of reports -->
     <string name="message_no_reports">No reports yet</string>
-    <string name="menu_add_report">Add Report</string>
+    <string name="menu_create_report">Add Report</string>
     <string name="menu_edit_report">Edit Report</string>
     <string name="menu_delete_report">Delete Report</string>
+
+    <!-- Delete report -->
+    <string name="title_edit_report">Edit Report</string>
+    <string name="report_date">Date</string>
+    <string name="report_value">Value</string>
+    <string name="button_save_report">Save</string>
+    <string name="button_cancel_edit_report">Cancel</string>
+    <string name="message_report_created">New report has been created</string>
+    <string name="message_report_updated">Report has been updated</string>
+    <string name="message_report_deleted">Report has been deleted</string>
+    <string name="message_confirm_delete_report">Are you sure you want to delete this report?</string>
 
 </resources>

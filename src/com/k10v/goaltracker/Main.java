@@ -17,7 +17,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-// TODO: showDialog() is deprecated
+// TODO: showDialog() is deprecated (here and in ReportList)
 
 public class Main extends ListActivity {
 
@@ -27,7 +27,7 @@ public class Main extends ListActivity {
 
     private static final int DIALOG_CONFIRM_DELETE_TASK_ID = 1;
 
-    public static final int MENU_ID_ADD_TASK = Menu.FIRST;
+    public static final int MENU_ID_CREATE_TASK = Menu.FIRST;
     public static final int MENU_ID_EDIT_TASK = Menu.FIRST + 1;
     public static final int MENU_ID_DELETE_TASK = Menu.FIRST + 2;
     public static final int MENU_ID_VIEW_TASK_REPORTS = Menu.FIRST + 3;
@@ -40,6 +40,7 @@ public class Main extends ListActivity {
      * 
      * TODO: rewrite it in a cleaner way, because this looks like a hack (the
      * reason behind that is that confirmation dialog can't receive parameters)
+     * (this approach is also used in ReportList)
      */
     private long rowIdToDelete;
 
@@ -62,7 +63,7 @@ public class Main extends ListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_ID_ADD_TASK, 0, R.string.menu_add_task);
+        menu.add(0, MENU_ID_CREATE_TASK, 0, R.string.menu_create_task);
         return result;
     }
 
@@ -74,7 +75,7 @@ public class Main extends ListActivity {
 
         switch (item.getItemId()) {
 
-        case MENU_ID_ADD_TASK:
+        case MENU_ID_CREATE_TASK:
             runCreateTask();
             return true;
 
@@ -153,7 +154,6 @@ public class Main extends ListActivity {
             Intent intent) {
         fillTasksList();
     }
-
 
     /**
      * Creates dialogs (confirmations etc.)

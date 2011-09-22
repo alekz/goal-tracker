@@ -43,6 +43,18 @@ public class ReportPeer extends BasePeer {
     }
 
     /**
+     * Create a new report
+     * 
+     * @param taskId
+     * @param date
+     * @param value
+     * @return
+     */
+    public long createReport(long taskId, String date, double value) {
+        return createReport(taskId, date, value, false);
+    }
+
+    /**
      * Update the report with given ID using the details provided
      *
      * @param rowId
@@ -64,8 +76,20 @@ public class ReportPeer extends BasePeer {
     }
 
     /**
+     * Update the report with given ID using the details provided
+     * 
+     * @param rowId
+     * @param date
+     * @param value
+     * @return true if the report was successfully updated, false otherwise
+     */
+    public boolean updateReport(long rowId, String date, double value) {
+        return updateReport(rowId, date, value, false);
+    }
+
+    /**
      * Delete the report with the given rowId
-     *
+     * 
      * @param rowId
      * @return true if deleted, false otherwise
      */
@@ -88,11 +112,17 @@ public class ReportPeer extends BasePeer {
      * are sorted by date
      * 
      * @param taskId
+     * @param reverseOrder
      * @return Cursor over all reports of the given task
      */
-    public Cursor fetchReportsByTask(long taskId) {
+    public Cursor fetchReportsByTask(long taskId, boolean reverseOrder) {
+        String sortDirection = reverseOrder ? "DESC" : "ASC";
         return mDb.query(TABLE, getFields(), KEY_TASK_ID + "=" + taskId, null,
-                null, null, KEY_DATE);
+                null, null, KEY_DATE + " " + sortDirection);
+    }
+
+    public Cursor fetchReportsByTask(long taskId) {
+        return fetchReportsByTask(taskId, false);
     }
 
     /**
