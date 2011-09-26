@@ -16,6 +16,7 @@
         <activity android:name=".TaskEdit"></activity>
         <activity android:name=".ReportList"></activity>
         <activity android:name=".ReportEdit"></activity>
+        <activity android:name=".TaskGraph"></activity>
 
     </application>
 </manifest>

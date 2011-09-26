@@ -12,6 +12,7 @@
     <string name="menu_edit_task">Edit Task</string>
     <string name="menu_delete_task">Delete Task</string>
     <string name="menu_view_task_reports">View Reports</string>
+    <string name="menu_view_task_graph">View Graph</string>
 
     <!-- Edit task -->
     <string name="title_edit_task">Edit Task</string>

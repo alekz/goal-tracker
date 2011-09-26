@@ -24,6 +24,7 @@ public class Main extends ListActivity {
     private static final int ACTIVITY_CREATE_TASK = 0;
     private static final int ACTIVITY_EDIT_TASK = 1;
     private static final int ACTIVITY_VIEW_TASK_REPORTS = 2;
+    private static final int ACTIVITY_VIEW_TASK_GRAPH = 3;
 
     private static final int DIALOG_CONFIRM_DELETE_TASK_ID = 1;
 
@@ -31,6 +32,7 @@ public class Main extends ListActivity {
     public static final int MENU_ID_EDIT_TASK = Menu.FIRST + 1;
     public static final int MENU_ID_DELETE_TASK = Menu.FIRST + 2;
     public static final int MENU_ID_VIEW_TASK_REPORTS = Menu.FIRST + 3;
+    public static final int MENU_ID_VIEW_TASK_GRAPH = Menu.FIRST + 4;
 
     private GoalTrackerDbAdapter mDbHelper;
     private Cursor mTasksCursor;
@@ -101,10 +103,11 @@ public class Main extends ListActivity {
         menu.setHeaderTitle(title);
 
         // Add menu items
-        menu.add(0, MENU_ID_VIEW_TASK_REPORTS, 0,
+        menu.add(0, MENU_ID_VIEW_TASK_GRAPH, 0, R.string.menu_view_task_graph);
+        menu.add(0, MENU_ID_VIEW_TASK_REPORTS, 1,
                 R.string.menu_view_task_reports);
-        menu.add(0, MENU_ID_EDIT_TASK, 1, R.string.menu_edit_task);
-        menu.add(0, MENU_ID_DELETE_TASK, 2, R.string.menu_delete_task);
+        menu.add(0, MENU_ID_EDIT_TASK, 2, R.string.menu_edit_task);
+        menu.add(0, MENU_ID_DELETE_TASK, 3, R.string.menu_delete_task);
     }
 
     /**
@@ -119,6 +122,10 @@ public class Main extends ListActivity {
         long rowId = info.id;
 
         switch (item.getItemId()) {
+
+        case MENU_ID_VIEW_TASK_GRAPH:
+            runViewTaskGraph(rowId);
+            return true;
 
         case MENU_ID_VIEW_TASK_REPORTS:
             runViewTaskReports(rowId);
@@ -143,7 +150,7 @@ public class Main extends ListActivity {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-        runViewTaskReports(id);
+        runViewTaskGraph(id);
     }
 
     /**
@@ -203,6 +210,17 @@ public class Main extends ListActivity {
         }
 
         return dialog;
+    }
+
+    /**
+     * Displays task's graph
+     * 
+     * @param rowId
+     */
+    private void runViewTaskGraph(long rowId) {
+        Intent i = new Intent(this, TaskGraph.class);
+        i.putExtra(ReportPeer.KEY_TASK_ID, rowId);
+        startActivityForResult(i, ACTIVITY_VIEW_TASK_GRAPH);
     }
 
     /**
