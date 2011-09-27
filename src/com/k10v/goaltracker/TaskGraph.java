@@ -45,6 +45,16 @@ public class TaskGraph extends Activity {
     }
 
     /**
+     * Called when activity state should be temporarily saved, for example when
+     * activity is about to be killed in order to retrieve system resources
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(TaskPeer.KEY_ID, mTaskId);
+    }
+
+    /**
      * Draw the graph.
      */
     private void drawGraph() {
