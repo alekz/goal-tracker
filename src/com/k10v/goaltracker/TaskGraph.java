@@ -28,11 +28,11 @@ public class TaskGraph extends Activity {
         // then check Intent's extras. If ID is empty, it is an error.
         if (savedInstanceState != null) {
             mTaskId = (Long) savedInstanceState.getSerializable(
-                    ReportPeer.KEY_TASK_ID);
+                    TaskPeer.KEY_ID);
         } else {
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
-                mTaskId = extras.getLong(ReportPeer.KEY_TASK_ID);
+                mTaskId = extras.getLong(TaskPeer.KEY_ID);
             }
         }
         if (mTaskId == 0) {

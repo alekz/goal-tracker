@@ -219,7 +219,7 @@ public class Main extends ListActivity {
      */
     private void runViewTaskGraph(long rowId) {
         Intent i = new Intent(this, TaskGraph.class);
-        i.putExtra(ReportPeer.KEY_TASK_ID, rowId);
+        i.putExtra(TaskPeer.KEY_ID, rowId);
         startActivityForResult(i, ACTIVITY_VIEW_TASK_GRAPH);
     }
 
@@ -230,7 +230,7 @@ public class Main extends ListActivity {
      */
     private void runViewTaskReports(long rowId) {
         Intent i = new Intent(this, ReportList.class);
-        i.putExtra(ReportPeer.KEY_TASK_ID, rowId);
+        i.putExtra(TaskPeer.KEY_ID, rowId);
         startActivityForResult(i, ACTIVITY_VIEW_TASK_REPORTS);
     }
 
