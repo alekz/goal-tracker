@@ -74,21 +74,26 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         int height = canvas.getHeight();
 
         // TODO: Use JodaTime library for dates instead?
-        int dateRange = Math.round((maxDate.getTime() - minDate.getTime()) / (24 * 60 * 60 * 1000f));
+        int dateRange = 1 + Math.round((maxDate.getTime() - minDate.getTime()) / (24 * 60 * 60 * 1000f));
+
         float valueRange = maxValue - minValue;
 
-        int i = 0, x0 = 0, y0 = 0;
+        int i = 0;
         float value = startValue;
+        int x0 = 0;
+        int y0 = Math.round((height - 1) * (value / valueRange));
 
         // while (maxDate >= date)
         while (maxDate.compareTo(date) >= 0) {
+
+            i++;
 
             // TODO: probably should use dateString as a key instead?
             if (values.containsKey(date)) {
                 value = values.get(date);
             }
 
-            int x = (width - 1) * i / (dateRange - 1);
+            int x = (width - 1) * i / dateRange;
             int y = Math.round((height - 1) * (value / valueRange));
 
             canvas.drawLine(x0, height - y0 - 1, x, height - y - 1, paint);
@@ -100,25 +105,21 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
             x0 = x;
             y0 = y;
-            i++;
         }
     }
 
     /**
      * Provide canvas with the task/reports details from the database
-     * 
+     *
      * @param taskCursor
      * @param reportsCursor
      */
     public void setData(Cursor taskCursor, Cursor reportsCursor) {
 
         // Get information about the task
-        startValue = taskCursor.getFloat(
-                taskCursor.getColumnIndex(TaskPeer.KEY_START_VALUE));
-        finishValue = taskCursor.getFloat(
-                taskCursor.getColumnIndex(TaskPeer.KEY_TARGET_VALUE));
-        minValue = startValue;
-        maxValue = startValue;
+        startValue = taskCursor.getFloat(taskCursor.getColumnIndex(TaskPeer.KEY_START_VALUE));
+        finishValue = taskCursor.getFloat(taskCursor.getColumnIndex(TaskPeer.KEY_TARGET_VALUE));
+        minValue = maxValue = startValue;
 
         // Process list of reports
 
@@ -131,10 +132,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         while (!reportsCursor.isAfterLast()) {
 
             // Get values from the cursor
-            Float value = reportsCursor.getFloat(
-                    reportsCursor.getColumnIndex(ReportPeer.KEY_VALUE));
-            String dateString = reportsCursor.getString(
-                    reportsCursor.getColumnIndex(ReportPeer.KEY_DATE));
+            Float value = reportsCursor.getFloat(reportsCursor.getColumnIndex(ReportPeer.KEY_VALUE));
+            String dateString = reportsCursor.getString(reportsCursor.getColumnIndex(ReportPeer.KEY_DATE));
             Date date = null;
 
             reportsCursor.moveToNext();
