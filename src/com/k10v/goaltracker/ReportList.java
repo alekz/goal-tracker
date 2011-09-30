@@ -113,12 +113,11 @@ public class ReportList extends ListActivity {
         super.onCreateContextMenu(menu, v, menuInfo);
 
         // TODO: Set menu title
-        // AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        // Cursor c = mTasksCursor;
-        // c.moveToPosition(info.position);
-        // String title =
-        // c.getString(c.getColumnIndexOrThrow(TaskPeer.KEY_TITLE));
-        // menu.setHeaderTitle(title);
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        Cursor c = mReportsCursor;
+        c.moveToPosition(info.position);
+        String title = c.getString(c.getColumnIndexOrThrow(ReportPeer.KEY_DATE));
+        menu.setHeaderTitle(title);
 
         // Add menu items
         menu.add(0, MENU_ID_EDIT_REPORT, 1, R.string.menu_edit_report);
@@ -242,7 +241,7 @@ public class ReportList extends ListActivity {
     /**
      * Launches confirmation dialog asking is user really wants to delete the
      * report, then deletes it if user confirms
-     * 
+     *
      * @param rowId ID of the report to delete
      */
     private void runDeleteReport(long rowId) {
@@ -253,7 +252,7 @@ public class ReportList extends ListActivity {
     /**
      * Actually deletes report with given ID and reloads the list of reports.
      * Shouldn't be called directly, use runDeleteReport() instead.
-     * 
+     *
      * @param rowId ID of the report to delete
      */
     private void doDeleteReport(long rowId) {

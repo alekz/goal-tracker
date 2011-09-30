@@ -9,10 +9,10 @@
     <!-- List of tasks -->
     <string name="message_no_tasks">No tasks yet</string>
     <string name="menu_create_task">Create Task</string>
-    <string name="menu_edit_task">Edit Task</string>
-    <string name="menu_delete_task">Delete Task</string>
-    <string name="menu_view_task_reports">View Reports</string>
-    <string name="menu_view_task_graph">View Graph</string>
+    <string name="menu_edit_task">Edit</string>
+    <string name="menu_delete_task">Delete</string>
+    <string name="menu_view_task_reports">Reports</string>
+    <string name="menu_view_task_graph">Graph</string>
 
     <!-- Edit task -->
     <string name="title_edit_task">Edit Task</string>
@@ -29,8 +29,8 @@
     <!-- List of reports -->
     <string name="message_no_reports">No reports yet</string>
     <string name="menu_create_report">Add Report</string>
-    <string name="menu_edit_report">Edit Report</string>
-    <string name="menu_delete_report">Delete Report</string>
+    <string name="menu_edit_report">Edit</string>
+    <string name="menu_delete_report">Delete</string>
 
     <!-- Delete report -->
     <string name="title_edit_report">Edit Report</string>

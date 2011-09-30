@@ -90,7 +90,7 @@ public class TaskPeer extends BasePeer {
      * @return Cursor over all tasks
      */
     public Cursor fetchAllTasks() {
-        return mDb.query(TABLE, getFields(), null, null, null, null, null);
+        return mDb.query(TABLE, getFields(), null, null, null, null, KEY_TITLE);
     }
 
     /**
