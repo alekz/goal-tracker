@@ -18,11 +18,12 @@ public final class R {
         public static final int button_cancel_edit_task=0x7f05000a;
         public static final int button_save_report=0x7f050002;
         public static final int button_save_task=0x7f050009;
+        public static final int graph_surface=0x7f05000b;
         public static final int report_date=0x7f050000;
         public static final int report_row_date=0x7f050004;
         public static final int report_row_value=0x7f050005;
         public static final int report_value=0x7f050001;
-        public static final int task_row_text=0x7f05000b;
+        public static final int task_row_text=0x7f05000c;
         public static final int task_start_value=0x7f050007;
         public static final int task_target_value=0x7f050008;
         public static final int task_title=0x7f050006;

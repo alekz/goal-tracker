@@ -10,8 +10,10 @@ public class TaskGraph extends Activity {
     private static final String TAG = "TaskGraph";
 
     private GoalTrackerDbAdapter mDbHelper;
+    private Cursor mTaskCursor;
     private Cursor mReportsCursor;
     private long mTaskId;
+    private Panel mGraph;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,8 @@ public class TaskGraph extends Activity {
             finish();
         }
 
+        // Find graph surface and start drawing the graph
+        mGraph = (Panel) findViewById(R.id.graph_surface);
         drawGraph();
     }
 
@@ -58,10 +62,14 @@ public class TaskGraph extends Activity {
      * Draw the graph.
      */
     private void drawGraph() {
+
+        mTaskCursor = mDbHelper.getTaskPeer().fetchTask(mTaskId);
+        startManagingCursor(mTaskCursor);
+
         mReportsCursor = mDbHelper.getReportPeer().
-                fetchReportsByTask(mTaskId, true);
+                fetchReportsByTask(mTaskId);
         startManagingCursor(mReportsCursor);
 
-        // TODO: ...
+        mGraph.setData(mTaskCursor, mReportsCursor);
     }
 }

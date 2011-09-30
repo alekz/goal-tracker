@@ -4,4 +4,9 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
+    <com.k10v.goaltracker.Panel
+        android:id="@+id/graph_surface"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </com.k10v.goaltracker.Panel>
 </LinearLayout>
