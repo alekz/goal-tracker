@@ -1,10 +1,17 @@
 package com.k10v.goaltracker;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import android.app.Activity;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -13,12 +20,17 @@ import android.widget.Toast;
 
 public class ReportEdit extends Activity {
 
+    static final int DATE_DIALOG_ID = 0;
+
     private GoalTrackerDbAdapter mDbHelper;
+    private Cursor mReportCursor;
 
     private Long mRowId;
     private Long mTaskId;
-    private EditText mDateText;
+    private Button mDatePicker;
     private EditText mValueText;
+
+    private Calendar mCalendar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,31 +46,65 @@ public class ReportEdit extends Activity {
         setTitle(R.string.title_edit_report);
 
         // Find form inputs
-        mDateText = (EditText) findViewById(R.id.report_date);
+        mDatePicker = (Button) findViewById(R.id.report_date_picker);
         mValueText = (EditText) findViewById(R.id.report_value);
+
+        // Add a click listener to the date picker button
+        mDatePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialog(DATE_DIALOG_ID);
+            }
+        });
+
+        mCalendar = Calendar.getInstance();
 
         // Retrieve report ID: first check if it's stored in saved state, if not
         // then check Intent's extras. If ID is empty, we will create a new
         // report rather than edit an existing one
         if (savedInstanceState != null) {
-            mRowId = (Long) savedInstanceState
-                    .getSerializable(ReportPeer.KEY_ID);
-            mTaskId = (Long) savedInstanceState
-                    .getSerializable(ReportPeer.KEY_TASK_ID);
+
+            mRowId = (Long) savedInstanceState.getSerializable(ReportPeer.KEY_ID);
+            mTaskId = (Long) savedInstanceState.getSerializable(ReportPeer.KEY_TASK_ID);
+
         } else {
+
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
                 mRowId = extras.getLong(ReportPeer.KEY_ID);
+                if (mRowId == 0) {
+                    mRowId = null;
+                }
                 mTaskId = extras.getLong(ReportPeer.KEY_TASK_ID);
             }
         }
-        if (mRowId == 0) {
-            mRowId = null;
+
+        if (mRowId != null) {
+
+            // Load database data for an existing report
+            mReportCursor = mDbHelper.getReportPeer().fetchReport(mRowId);
+            startManagingCursor(mReportCursor);
+
+            // Load date from saved instance state or from database
+            if (savedInstanceState != null) {
+                mCalendar = (Calendar) savedInstanceState.getSerializable(ReportPeer.KEY_DATE);
+            } else {
+                Cursor c = mReportCursor;
+                String dateString = c.getString(c.getColumnIndexOrThrow(ReportPeer.KEY_DATE));
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    mCalendar.setTime(df.parse(dateString));
+                } catch (ParseException e) {
+                    // Use default date
+                }
+            }
         }
 
         populateFields();
 
         setupListeners();
+
+        updateDisplay();
     }
 
     /**
@@ -69,8 +115,32 @@ public class ReportEdit extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(ReportPeer.KEY_ID, mRowId);
+        outState.putSerializable(ReportPeer.KEY_DATE, mCalendar);
         // We don't need to save form values because this is handled
         // automatically for every View object
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+
+        case DATE_DIALOG_ID:
+
+            DatePickerDialog.OnDateSetListener dateSetListener =
+                new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                            mCalendar.set(year, monthOfYear, dayOfMonth);
+                            updateDisplay();
+                        }
+                    };
+
+            return new DatePickerDialog(this, dateSetListener,
+                    mCalendar.get(Calendar.YEAR),
+                    mCalendar.get(Calendar.MONTH),
+                    mCalendar.get(Calendar.DAY_OF_MONTH));
+        }
+        return null;
     }
 
     /**
@@ -78,16 +148,12 @@ public class ReportEdit extends Activity {
      */
     private void populateFields() {
 
-        if (mRowId == null) {
+        if (mReportCursor == null) {
             return;
         }
 
-        Cursor c = mDbHelper.getReportPeer().fetchReport(mRowId);
-        startManagingCursor(c);
-        mDateText.setText(c.getString(
-                c.getColumnIndexOrThrow(ReportPeer.KEY_DATE)));
-        mValueText.setText(c.getString(
-                c.getColumnIndexOrThrow(ReportPeer.KEY_VALUE)));
+        Cursor c = mReportCursor;
+        mValueText.setText(c.getString(c.getColumnIndexOrThrow(ReportPeer.KEY_VALUE)));
     }
 
     /**
@@ -119,6 +185,14 @@ public class ReportEdit extends Activity {
     }
 
     /**
+     * Update display date
+     */
+    private void updateDisplay() {
+        String dateString = android.text.format.DateFormat.format("E, MMM d, yyyy", mCalendar).toString();
+        mDatePicker.setText(dateString);
+    }
+
+    /**
      * Save the form when "Back" key pressed
      */
     @Override
@@ -133,7 +207,8 @@ public class ReportEdit extends Activity {
     private void saveForm() {
 
         // Get field values from the form elements
-        String date = mDateText.getText().toString();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        String date = df.format(mCalendar.getTime());
         Double value = Double.valueOf(mValueText.getText().toString());
 
         // Create or update the report

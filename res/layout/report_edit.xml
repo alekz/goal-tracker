@@ -14,11 +14,11 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             style="@android:style/TextAppearance.Medium"/>
-        <EditText
-            android:id="@+id/report_date"
+        <Button
+            android:id="@+id/report_date_picker"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="date"/>
+            android:text=""/>
         <TextView
             android:text="@string/report_value"
             android:layout_width="fill_parent"
