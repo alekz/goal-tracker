@@ -16,22 +16,22 @@ import android.view.SurfaceView;
 
 public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
-    private CanvasThread canvasthread;
+    private CanvasThread mCanvasThread;
 
-    private Date minDate;
-    private Date maxDate;
+    private Date mMinDate;
+    private Date mMaxDate;
 
-    private Float startValue = null;
-    private Float finishValue = null;
-    private Float minValue = null;
-    private Float maxValue = null;
+    private Float mStartValue = null;
+    private Float mFinishValue = null;
+    private Float mMinValue = null;
+    private Float mMaxValue = null;
 
-    private HashMap<Date, Float> values;
+    private HashMap<Date, Float> mValues;
 
     public Panel(Context context, AttributeSet attrs) {
         super(context, attrs);
         getHolder().addCallback(this);
-        canvasthread = new CanvasThread(getHolder(), this);
+        mCanvasThread = new CanvasThread(getHolder(), this);
         setFocusable(true);
     }
 
@@ -43,17 +43,17 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        canvasthread.setRunning(true);
-        canvasthread.start();
+        mCanvasThread.setRunning(true);
+        mCanvasThread.start();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         boolean retry = true;
-        canvasthread.setRunning(false);
+        mCanvasThread.setRunning(false);
         while (retry) {
             try {
-                canvasthread.join();
+                mCanvasThread.join();
                 retry = false;
             } catch (InterruptedException e) {
                 // we will try it again and again...
@@ -68,29 +68,29 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         paint.setARGB(255, 255, 255, 255);
 
         Calendar cal = Calendar.getInstance();
-        Date date = minDate;
+        Date date = mMinDate;
 
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 
         // TODO: Use JodaTime library for dates instead?
-        int dateRange = 1 + Math.round((maxDate.getTime() - minDate.getTime()) / (24 * 60 * 60 * 1000f));
+        int dateRange = 1 + Math.round((mMaxDate.getTime() - mMinDate.getTime()) / (24 * 60 * 60 * 1000f));
 
-        float valueRange = maxValue - minValue;
+        float valueRange = mMaxValue - mMinValue;
 
         int i = 0;
-        float value = startValue;
+        float value = mStartValue;
         int x0 = 0;
         int y0 = Math.round((height - 1) * (value / valueRange));
 
         // while (maxDate >= date)
-        while (maxDate.compareTo(date) >= 0) {
+        while (mMaxDate.compareTo(date) >= 0) {
 
             i++;
 
             // TODO: probably should use dateString as a key instead?
-            if (values.containsKey(date)) {
-                value = values.get(date);
+            if (mValues.containsKey(date)) {
+                value = mValues.get(date);
             }
 
             int x = (width - 1) * i / dateRange;
@@ -117,15 +117,15 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     public void setData(Cursor taskCursor, Cursor reportsCursor) {
 
         // Get information about the task
-        startValue = taskCursor.getFloat(taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE));
-        finishValue = taskCursor.getFloat(taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE));
-        minValue = maxValue = startValue;
+        mStartValue = taskCursor.getFloat(taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE));
+        mFinishValue = taskCursor.getFloat(taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE));
+        mMinValue = mMaxValue = mStartValue;
 
         // Process list of reports
 
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-        values = new HashMap<Date, Float>(reportsCursor.getCount());
+        mValues = new HashMap<Date, Float>(reportsCursor.getCount());
 
         reportsCursor.moveToFirst();
 
@@ -145,25 +145,25 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
                 continue;
             }
 
-            values.put(date, value);
+            mValues.put(date, value);
 
-            if (value < minValue) {
-                minValue = value;
+            if (value < mMinValue) {
+                mMinValue = value;
             }
 
-            if (maxValue < value) {
-                maxValue = value;
+            if (mMaxValue < value) {
+                mMaxValue = value;
             }
 
-            if (minDate == null) {
-                minDate = date;
+            if (mMinDate == null) {
+                mMinDate = date;
             }
 
-            maxDate = date;
+            mMaxDate = date;
         }
 
-        if (finishValue == null) {
-            finishValue = maxValue;
+        if (mFinishValue == null) {
+            mFinishValue = mMaxValue;
         }
     }
 }
