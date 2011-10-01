@@ -23,6 +23,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
     private Float mStartValue = null;
     private Float mFinishValue = null;
+    private Float mTargetValue = null;
     private Float mMinValue = null;
     private Float mMaxValue = null;
 
@@ -73,10 +74,25 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 
-        // TODO: Use JodaTime library for dates instead?
-        int dateRange = 1 + Math.round((mMaxDate.getTime() - mMinDate.getTime()) / (24 * 60 * 60 * 1000f));
+        // If task has a target value which is not reached yet, use target value
+        // as a maximum value; also use today as a maximum date
+        float maxValue = mMaxValue;
+        Date maxDate = mMaxDate;
+        if (mTargetValue != null && mMaxValue < mTargetValue) {
 
-        float valueRange = mMaxValue - mMinValue;
+            maxValue = mTargetValue;
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            maxDate = calendar.getTime();
+        }
+
+        // TODO: Use JodaTime library for dates instead?
+        int dateRange = 1 + Math.round((maxDate.getTime() - mMinDate.getTime()) / (24 * 60 * 60 * 1000f));
+        float valueRange = maxValue - mMinValue;
 
         int i = 0;
         float value = mStartValue;
@@ -84,7 +100,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         int y0 = Math.round((height - 1) * (value / valueRange));
 
         // while (maxDate >= date)
-        while (mMaxDate.compareTo(date) >= 0) {
+        while (maxDate.compareTo(date) >= 0) {
 
             i++;
 
@@ -117,9 +133,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     public void setData(Cursor taskCursor, Cursor reportsCursor) {
 
         // Get information about the task
-        mStartValue = taskCursor.getFloat(taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE));
-        mFinishValue = taskCursor.getFloat(taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE));
-        mMinValue = mMaxValue = mStartValue;
+        mMinValue = mMaxValue = mStartValue = taskCursor.getFloat(
+                taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE));
+        mFinishValue = mTargetValue = taskCursor.getFloat(
+                taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE));
 
         // Process list of reports
 
