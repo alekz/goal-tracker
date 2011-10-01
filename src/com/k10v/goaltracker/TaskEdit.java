@@ -53,6 +53,12 @@ public class TaskEdit extends Activity {
         setupListeners();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDbHelper.close();
+    }
+
     /**
      * Called when activity state should be temporarily saved, for example when
      * activity is about to be killed in order to retrieve system resources

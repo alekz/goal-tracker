@@ -76,6 +76,12 @@ public class ReportList extends ListActivity {
         registerForContextMenu(getListView());
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDbHelper.close();
+    }
+
     /**
      * Create main menu.
      */
