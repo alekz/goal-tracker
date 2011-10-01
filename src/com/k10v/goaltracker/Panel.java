@@ -117,8 +117,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     public void setData(Cursor taskCursor, Cursor reportsCursor) {
 
         // Get information about the task
-        startValue = taskCursor.getFloat(taskCursor.getColumnIndex(TaskPeer.KEY_START_VALUE));
-        finishValue = taskCursor.getFloat(taskCursor.getColumnIndex(TaskPeer.KEY_TARGET_VALUE));
+        startValue = taskCursor.getFloat(taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE));
+        finishValue = taskCursor.getFloat(taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE));
         minValue = maxValue = startValue;
 
         // Process list of reports
@@ -132,8 +132,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         while (!reportsCursor.isAfterLast()) {
 
             // Get values from the cursor
-            Float value = reportsCursor.getFloat(reportsCursor.getColumnIndex(ReportPeer.KEY_VALUE));
-            String dateString = reportsCursor.getString(reportsCursor.getColumnIndex(ReportPeer.KEY_DATE));
+            Float value = reportsCursor.getFloat(reportsCursor.getColumnIndexOrThrow(ReportPeer.KEY_VALUE));
+            String dateString = reportsCursor.getString(reportsCursor.getColumnIndexOrThrow(ReportPeer.KEY_DATE));
             Date date = null;
 
             reportsCursor.moveToNext();
