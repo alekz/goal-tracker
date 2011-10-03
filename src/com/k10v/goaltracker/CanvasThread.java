@@ -4,35 +4,35 @@ import android.graphics.Canvas;
 import android.view.SurfaceHolder;
 
 public class CanvasThread extends Thread {
-    private SurfaceHolder _surfaceHolder;
-    private Panel _panel;
-    private boolean _run = false;
+    private SurfaceHolder mSurfaceHolder;
+    private Panel mPanel;
+    private boolean mRun = false;
 
     public CanvasThread(SurfaceHolder surfaceHolder, Panel panel) {
-        _surfaceHolder = surfaceHolder;
-        _panel = panel;
+        mSurfaceHolder = surfaceHolder;
+        mPanel = panel;
     }
 
     public void setRunning(boolean run) {
-        _run = run;
+        mRun = run;
     }
 
     @Override
     public void run() {
         Canvas c;
-        while (_run) {
+        while (mRun) {
             c = null;
             try {
-                c = _surfaceHolder.lockCanvas();
-                synchronized (_surfaceHolder) {
-                    _panel.onDraw(c);
+                c = mSurfaceHolder.lockCanvas();
+                synchronized (mSurfaceHolder) {
+                    mPanel.onDraw(c);
                 }
             } finally {
                 // do this in a finally so that if an exception is thrown during
                 // the above, we don't leave the Surface in an inconsistent
                 // state
                 if (c != null) {
-                    _surfaceHolder.unlockCanvasAndPost(c);
+                    mSurfaceHolder.unlockCanvasAndPost(c);
                 }
             }
         }
