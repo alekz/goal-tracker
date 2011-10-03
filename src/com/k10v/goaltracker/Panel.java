@@ -65,6 +65,11 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void onDraw(Canvas canvas) {
 
+        // Don't have any reports yet?
+        if (mValues.size() == 0) {
+            return;
+        }
+
         // Prepare line colors for different parst of the graph
 
         Paint paintProgress = new Paint();
