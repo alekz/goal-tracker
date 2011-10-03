@@ -98,7 +98,11 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
-            maxDate = calendar.getTime();
+            Date today = calendar.getTime();
+
+            if (today.compareTo(maxDate) > 0) {
+                maxDate = today;
+            }
         }
 
         // Ranges of dates and values
