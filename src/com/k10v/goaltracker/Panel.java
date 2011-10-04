@@ -32,7 +32,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     public Panel(Context context, AttributeSet attrs) {
         super(context, attrs);
         getHolder().addCallback(this);
-        mCanvasThread = new CanvasThread(getHolder(), this);
+
         setFocusable(true);
     }
 
@@ -44,6 +44,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        mCanvasThread = new CanvasThread(getHolder(), this);
         mCanvasThread.setRunning(true);
         mCanvasThread.start();
     }
