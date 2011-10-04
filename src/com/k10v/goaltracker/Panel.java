@@ -9,6 +9,7 @@ import java.util.HashMap;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
@@ -29,6 +30,11 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
     private HashMap<Date, Float> mValues;
 
+    /**
+     * When true, indicates that graph should be updated
+     */
+    private boolean mUpdate = false;
+
     public Panel(Context context, AttributeSet attrs) {
         super(context, attrs);
         getHolder().addCallback(this);
@@ -44,6 +50,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        redraw();
         mCanvasThread = new CanvasThread(getHolder(), this);
         mCanvasThread.setRunning(true);
         mCanvasThread.start();
@@ -65,6 +72,12 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void onDraw(Canvas canvas) {
+
+        // Check if graph should be updated
+        if (!needsUpdate()) {
+            return;
+        }
+        mUpdate = false;
 
         // Don't have any reports yet?
         if (mValues.size() == 0) {
@@ -115,6 +128,9 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         // TODO: Use JodaTime library for dates instead?
         int dateRange = 1 + Math.round((maxDate.getTime() - mMinDate.getTime()) / (24 * 60 * 60 * 1000f));
         float valueRange = maxValue - mMinValue;
+
+        // Clear canvas
+        canvas.drawColor(Color.BLACK);
 
         // Draw axes
         int startValueY = Math.round(yMax * (mStartValue / valueRange));
@@ -214,5 +230,23 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
 
             mMaxDate = date;
         }
+
+        redraw();
+    }
+
+    /**
+     * Ask graph to redraw itself
+     */
+    public void redraw() {
+        mUpdate = true;
+    }
+
+    /**
+     * Returns true if graph should be redrawn
+     * 
+     * @return
+     */
+    public boolean needsUpdate() {
+        return mUpdate;
     }
 }

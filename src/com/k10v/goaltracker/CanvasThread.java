@@ -22,6 +22,9 @@ public class CanvasThread extends Thread {
         Canvas c;
         while (mRun) {
             c = null;
+            if (!mPanel.needsUpdate()) {
+                continue;
+            }
             try {
                 c = mSurfaceHolder.lockCanvas();
                 synchronized (mSurfaceHolder) {
