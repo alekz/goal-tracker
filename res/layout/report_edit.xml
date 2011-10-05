@@ -18,6 +18,7 @@
             android:id="@+id/report_date_picker"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            style="@android:style/TextAppearance.Medium.Inverse"
             android:text=""/>
         <TextView
             android:text="@string/report_value"

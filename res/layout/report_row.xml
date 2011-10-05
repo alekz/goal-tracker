@@ -4,9 +4,9 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="2mm">
+    android:padding="10dp">
     <TextView
-        android:text="1980-02-15"
+        android:text=""
         android:id="@+id/report_row_date"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
