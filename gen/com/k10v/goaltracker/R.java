@@ -14,19 +14,19 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int button_cancel_edit_report=0x7f050003;
-        public static final int button_cancel_edit_task=0x7f05000a;
-        public static final int button_save_report=0x7f050002;
-        public static final int button_save_task=0x7f050009;
-        public static final int graph_surface=0x7f05000b;
-        public static final int report_date_picker=0x7f050000;
-        public static final int report_row_date=0x7f050004;
-        public static final int report_row_value=0x7f050005;
-        public static final int report_value=0x7f050001;
-        public static final int task_row_text=0x7f05000c;
-        public static final int task_start_value=0x7f050007;
-        public static final int task_target_value=0x7f050008;
-        public static final int task_title=0x7f050006;
+        public static final int button_cancel_edit_report=0x7f060003;
+        public static final int button_cancel_edit_task=0x7f06000a;
+        public static final int button_save_report=0x7f060002;
+        public static final int button_save_task=0x7f060009;
+        public static final int graph_surface=0x7f06000b;
+        public static final int report_date_picker=0x7f060000;
+        public static final int report_row_date=0x7f060004;
+        public static final int report_row_value=0x7f060005;
+        public static final int report_value=0x7f060001;
+        public static final int task_row_text=0x7f06000c;
+        public static final int task_start_value=0x7f060007;
+        public static final int task_target_value=0x7f060008;
+        public static final int task_title=0x7f060006;
     }
     public static final class layout {
         public static final int report_edit=0x7f030000;
@@ -80,5 +80,8 @@ public final class R {
         /**  Edit task 
          */
         public static final int title_edit_task=0x7f040009;
+    }
+    public static final class style {
+        public static final int ListRow=0x7f050000;
     }
 }

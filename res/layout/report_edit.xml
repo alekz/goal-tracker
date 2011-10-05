@@ -29,7 +29,7 @@
             android:id="@+id/report_value"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"/>
+            android:inputType="numberDecimal|numberSigned"/>
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"

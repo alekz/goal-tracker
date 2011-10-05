@@ -27,7 +27,7 @@
             android:id="@+id/task_start_value"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"/>
+            android:inputType="numberDecimal|numberSigned"/>
         <TextView
             android:text="@string/task_target_value"
             android:layout_width="fill_parent"
@@ -37,7 +37,7 @@
             android:id="@+id/task_target_value"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="numberDecimal"/>
+            android:inputType="numberDecimal|numberSigned"/>
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
