@@ -3,13 +3,14 @@ package com.k10v.goaltracker;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 // TODO: handle empty/invalid form values
-// TODO: don't show "Task updated" message if nothing has changed
 
 public class TaskEdit extends Activity {
 
@@ -19,6 +20,7 @@ public class TaskEdit extends Activity {
     private EditText mTitleText;
     private EditText mStartValueText;
     private EditText mTargetValueText;
+    private boolean mFormChanged = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +118,25 @@ public class TaskEdit extends Activity {
             }
         });
 
+        TextWatcher onFormChangeListener = new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mFormChanged = true;
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+
+        mTitleText.addTextChangedListener(onFormChangeListener);
+        mStartValueText.addTextChangedListener(onFormChangeListener);
+        mTargetValueText.addTextChangedListener(onFormChangeListener);
     }
 
     /**
@@ -124,7 +145,9 @@ public class TaskEdit extends Activity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        saveForm();
+        if (mFormChanged) {
+            saveForm();
+        }
     }
 
     /**
