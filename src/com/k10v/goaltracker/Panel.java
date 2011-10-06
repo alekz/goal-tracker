@@ -127,6 +127,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
      */
     public void setData(Cursor taskCursor, Cursor reportsCursor) {
 
+        // Reset values
+        mMinDate = null;
+        mMaxDate = null;
+
         // Get information about the task
         mMinValue = mMaxValue = mStartValue = taskCursor.getFloat(
                 taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE));
