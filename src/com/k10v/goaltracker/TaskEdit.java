@@ -10,11 +10,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-// TODO: handle empty/invalid form values
-
 public class TaskEdit extends Activity {
 
     private GoalTrackerDbAdapter mDbHelper;
+    private Cursor mTaskCursor;
 
     private Long mRowId;
     private EditText mTitleText;
@@ -84,12 +83,10 @@ public class TaskEdit extends Activity {
 
         Cursor c = mDbHelper.getTaskPeer().fetchTask(mRowId);
         startManagingCursor(c);
-        mTitleText.setText(c.getString(
-                c.getColumnIndexOrThrow(TaskPeer.KEY_TITLE)));
-        mStartValueText.setText(c.getString(
-                c.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE)));
-        mTargetValueText.setText(c.getString(
-                c.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE)));
+        mTitleText.setText(c.getString(c.getColumnIndexOrThrow(TaskPeer.KEY_TITLE)));
+        mStartValueText.setText(c.getString(c.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE)));
+        mTargetValueText.setText(c.getString(c.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE)));
+        mTaskCursor = c;
     }
 
     /**
@@ -155,32 +152,50 @@ public class TaskEdit extends Activity {
      */
     private void saveForm() {
 
-        // Get field values from the form elements
-        String title = mTitleText.getText().toString();
-        Double startValue = Double.valueOf(
-                mStartValueText.getText().toString());
-        Double targetValue = Double.valueOf(
-                mTargetValueText.getText().toString());
-
-        // Create or update the task
         boolean isNewTask = (mRowId == null);
-        if (isNewTask) {
-            long id = mDbHelper.getTaskPeer().createTask(
-                    title, startValue, targetValue);
-            if (id > 0) {
-                mRowId = id;
+
+        // Get field values from the form elements (use sensible defaults in
+        // case of invalid values)
+
+        // Title
+        String title = mTitleText.getText().toString().trim();
+        if (title.equals("")) {
+            if (isNewTask) {
+                title = getString(R.string.task_default_title);
+            } else {
+                // If the new title is empty, use the old one
+                title = mTaskCursor.getString(mTaskCursor.getColumnIndexOrThrow(TaskPeer.KEY_TITLE));
             }
+        }
+
+        // Start value
+        Double startValue;
+        try {
+            startValue = Double.valueOf(mStartValueText.getText().toString());
+        } catch (NumberFormatException e) {
+            startValue = 0.0;
+        }
+
+        // Target value
+        Double targetValue;
+        try {
+            targetValue = Double.valueOf(mTargetValueText.getText().toString());
+        } catch (NumberFormatException e) {
+            targetValue = null;
+        }
+
+        // Create/update task
+        if (isNewTask) {
+            mRowId = mDbHelper.getTaskPeer().createTask(title, startValue, targetValue);
         } else {
-            mDbHelper.getTaskPeer().updateTask(
-                    mRowId, title, startValue, targetValue);
+            mDbHelper.getTaskPeer().updateTask(mRowId, title, startValue, targetValue);
         }
 
         // Show toast notification
         int toastMessageId = isNewTask ?
                 R.string.message_task_created :
                 R.string.message_task_updated;
-        Toast toast = Toast.makeText(getApplicationContext(), toastMessageId,
-                Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getApplicationContext(), toastMessageId, Toast.LENGTH_SHORT);
         toast.show();
     }
 }

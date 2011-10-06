@@ -235,29 +235,38 @@ public class ReportEdit extends Activity {
      */
     private void saveForm() {
 
+        boolean isNewReport = (mRowId == null);
+
         // Get field values from the form elements
+
+        // Date
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String date = df.format(mCalendar.getTime());
-        Double value = Double.valueOf(mValueText.getText().toString());
 
-        // Create or update the report
-        boolean isNewReport = (mRowId == null);
+        // Value
+        Double value;
+        try {
+            value = Double.valueOf(mValueText.getText().toString());
+        } catch (NumberFormatException e) {
+            value = 0.0;
+        }
+
+        // Create/update report
+        boolean isSaved;
         if (isNewReport) {
-            long id = mDbHelper.getReportPeer().createReport(
-                    mTaskId, date, value);
-            if (id > 0) {
-                mRowId = id;
-            }
+            mRowId = mDbHelper.getReportPeer().createReport(mTaskId, date, value);
+            isSaved = (mRowId != 0);
         } else {
-            mDbHelper.getReportPeer().updateReport(mRowId, date, value);
+            isSaved = mDbHelper.getReportPeer().updateReport(mRowId, date, value);
         }
 
         // Show toast notification
-        int toastMessageId = isNewReport ?
-                R.string.message_report_created :
-                R.string.message_report_updated;
-        Toast toast = Toast.makeText(getApplicationContext(), toastMessageId,
-                Toast.LENGTH_SHORT);
-        toast.show();
+        if (isSaved) {
+            int toastMessageId = isNewReport ?
+                    R.string.message_report_created :
+                    R.string.message_report_updated;
+            Toast toast = Toast.makeText(getApplicationContext(), toastMessageId, Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
 }

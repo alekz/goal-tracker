@@ -17,6 +17,7 @@
     <!-- Edit task -->
     <string name="title_edit_task">Edit Task</string>
     <string name="task_title">Title</string>
+    <string name="task_default_title">New task</string>
     <string name="task_start_value">Start value</string>
     <string name="task_target_value">Target value</string>
     <string name="button_save_task">Save</string>
