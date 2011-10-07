@@ -1,9 +1,7 @@
 package com.k10v.goaltracker;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -15,7 +13,6 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.Toast;
 
 // TODO: showDialog() is deprecated (here and in ReportList)
 
@@ -179,30 +176,12 @@ public class Main extends ListActivity {
 
         // Confirmation dialog for "Delete Task"
         case DIALOG_CONFIRM_DELETE_TASK_ID:
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder
-                    // Title
-                    .setMessage(R.string.message_confirm_delete_task)
-
-                    // "Yes" button
-                    .setPositiveButton(R.string.button_yes,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    doDeleteTask(rowIdToDelete);
-                                }
-                            })
-
-                    // "No" button
-                    .setNegativeButton(R.string.button_no,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-
+            DeleteTaskDialogBuilder builder = new DeleteTaskDialogBuilder(this, mDbHelper, rowIdToDelete) {
+                @Override
+                public void afterDeleteTask() {
+                    fillTasksList();
+                }
+            };
             dialog = builder.create();
             break;
 
@@ -265,27 +244,6 @@ public class Main extends ListActivity {
     private void runDeleteTask(long rowId) {
         rowIdToDelete = rowId;
         showDialog(DIALOG_CONFIRM_DELETE_TASK_ID);
-    }
-
-    /**
-     * Actually deletes task with given ID and reloads the list of tasks.
-     * Shouldn't be called directly, use runDeleteTask() instead.
-     *
-     * @param rowId ID of the task to delete
-     */
-    private void doDeleteTask(long rowId) {
-
-        // Delete the task
-        mDbHelper.getTaskPeer().deleteTask(rowId);
-
-        // Show message
-        Toast toast = Toast.makeText(getApplicationContext(),
-                R.string.message_task_deleted, Toast.LENGTH_SHORT);
-        toast.show();
-
-        // Update the list
-        fillTasksList();
-
     }
 
     /**

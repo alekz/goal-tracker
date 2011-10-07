@@ -1,16 +1,13 @@
 package com.k10v.goaltracker;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 public class TaskGraph extends Activity {
 
@@ -143,30 +140,12 @@ public class TaskGraph extends Activity {
 
         // Confirmation dialog for "Delete Task"
         case DIALOG_CONFIRM_DELETE_TASK_ID:
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder
-                    // Title
-                    .setMessage(R.string.message_confirm_delete_task)
-
-                    // "Yes" button
-                    .setPositiveButton(R.string.button_yes,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    doDeleteTask();
-                                }
-                            })
-
-                    // "No" button
-                    .setNegativeButton(R.string.button_no,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-
+            DeleteTaskDialogBuilder builder = new DeleteTaskDialogBuilder(this, mDbHelper, mTaskId) {
+                @Override
+                public void afterDeleteTask() {
+                    finish();
+                }
+            };
             dialog = builder.create();
             break;
 
@@ -212,25 +191,6 @@ public class TaskGraph extends Activity {
      */
     private void runDeleteTask() {
         showDialog(DIALOG_CONFIRM_DELETE_TASK_ID);
-    }
-
-    /**
-     * Actually deletes task and closes the activity. Shouldn't be called
-     * directly, use runDeleteTask() instead.
-     */
-    private void doDeleteTask() {
-
-        // Delete the task
-        mDbHelper.getTaskPeer().deleteTask(mTaskId);
-
-        // Show message
-        Toast toast = Toast.makeText(getApplicationContext(),
-                R.string.message_task_deleted, Toast.LENGTH_SHORT);
-        toast.show();
-
-        // Close the activity
-        finish();
-
     }
 
     /**
