@@ -39,7 +39,7 @@ public class Main extends ListActivity {
 
     /**
      * Used for "Delete Task" operation.
-     * 
+     *
      * TODO: rewrite it in a cleaner way, because this looks like a hack (the
      * reason behind that is that confirmation dialog can't receive parameters)
      * (this approach is also used in ReportList)
@@ -109,11 +109,10 @@ public class Main extends ListActivity {
         menu.setHeaderTitle(title);
 
         // Add menu items
-        menu.add(0, MENU_ID_VIEW_TASK_GRAPH, 0, R.string.menu_view_task_graph);
-        menu.add(0, MENU_ID_VIEW_TASK_REPORTS, 1,
-                R.string.menu_view_task_reports);
-        menu.add(0, MENU_ID_EDIT_TASK, 2, R.string.menu_edit_task);
-        menu.add(0, MENU_ID_DELETE_TASK, 3, R.string.menu_delete_task);
+        menu.add(0, MENU_ID_VIEW_TASK_GRAPH, 0, R.string.context_menu_view_task_graph);
+        menu.add(0, MENU_ID_VIEW_TASK_REPORTS, 1, R.string.context_menu_view_task_reports);
+        menu.add(0, MENU_ID_EDIT_TASK, 2, R.string.context_menu_edit_task);
+        menu.add(0, MENU_ID_DELETE_TASK, 3, R.string.context_menu_delete_task);
     }
 
     /**
@@ -169,7 +168,7 @@ public class Main extends ListActivity {
     }
 
     /**
-     * Creates dialogs (confirmations etc.)
+     * Create dialogs (confirmations etc.)
      */
     @Override
     protected Dialog onCreateDialog(int id) {
@@ -189,10 +188,9 @@ public class Main extends ListActivity {
                     .setPositiveButton(R.string.button_yes,
                             new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog,
-                                        int which) {
-                                    doDeleteTask(rowIdToDelete);
+                                public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
+                                    doDeleteTask(rowIdToDelete);
                                 }
                             })
 
@@ -200,8 +198,7 @@ public class Main extends ListActivity {
                     .setNegativeButton(R.string.button_no,
                             new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog,
-                                        int which) {
+                                public void onClick(DialogInterface dialog, int which) {
                                     dialog.cancel();
                                 }
                             });
@@ -220,7 +217,7 @@ public class Main extends ListActivity {
 
     /**
      * Displays task's graph
-     * 
+     *
      * @param rowId
      */
     private void runViewTaskGraph(long rowId) {
@@ -231,7 +228,7 @@ public class Main extends ListActivity {
 
     /**
      * Displays list of task reports
-     * 
+     *
      * @param rowId
      */
     private void runViewTaskReports(long rowId) {
@@ -262,7 +259,7 @@ public class Main extends ListActivity {
     /**
      * Launches confirmation dialog asking is user really wants to delete the
      * task, then deletes it if user confirms
-     * 
+     *
      * @param rowId ID of the task to delete
      */
     private void runDeleteTask(long rowId) {
@@ -273,7 +270,7 @@ public class Main extends ListActivity {
     /**
      * Actually deletes task with given ID and reloads the list of tasks.
      * Shouldn't be called directly, use runDeleteTask() instead.
-     * 
+     *
      * @param rowId ID of the task to delete
      */
     private void doDeleteTask(long rowId) {

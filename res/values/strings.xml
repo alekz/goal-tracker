@@ -6,13 +6,21 @@
     <string name="button_yes">Yes</string>
     <string name="button_no">No</string>
 
+    <!-- Menus -->
+    <string name="menu_create_task">Create Task</string>
+    <string name="menu_edit_task">Edit Task</string>
+    <string name="menu_delete_task">Delete Task</string>
+    <string name="menu_view_task_reports">View Reports</string>
+    <string name="menu_create_report">Add Report</string>
+    <string name="context_menu_edit_task">Edit</string>
+    <string name="context_menu_delete_task">Delete</string>
+    <string name="context_menu_view_task_graph">Graph</string>
+    <string name="context_menu_view_task_reports">Reports</string>
+    <string name="context_menu_edit_report">Edit</string>
+    <string name="context_menu_delete_report">Delete</string>
+    
     <!-- List of tasks -->
     <string name="message_no_tasks">No tasks yet</string>
-    <string name="menu_create_task">Create Task</string>
-    <string name="menu_edit_task">Edit</string>
-    <string name="menu_delete_task">Delete</string>
-    <string name="menu_view_task_reports">Reports</string>
-    <string name="menu_view_task_graph">Graph</string>
 
     <!-- Edit task -->
     <string name="title_edit_task">Edit Task</string>
@@ -29,9 +37,6 @@
 
     <!-- List of reports -->
     <string name="message_no_reports">No reports yet</string>
-    <string name="menu_create_report">Add Report</string>
-    <string name="menu_edit_report">Edit</string>
-    <string name="menu_delete_report">Delete</string>
 
     <!-- Delete report -->
     <string name="title_edit_report">Edit Report</string>

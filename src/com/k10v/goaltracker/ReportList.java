@@ -126,8 +126,8 @@ public class ReportList extends ListActivity {
         menu.setHeaderTitle(title);
 
         // Add menu items
-        menu.add(0, MENU_ID_EDIT_REPORT, 1, R.string.menu_edit_report);
-        menu.add(0, MENU_ID_DELETE_REPORT, 2, R.string.menu_delete_report);
+        menu.add(0, MENU_ID_EDIT_REPORT, 1, R.string.context_menu_edit_report);
+        menu.add(0, MENU_ID_DELETE_REPORT, 2, R.string.context_menu_delete_report);
     }
 
     /**
