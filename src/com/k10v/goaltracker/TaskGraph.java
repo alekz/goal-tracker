@@ -57,6 +57,11 @@ public class TaskGraph extends Activity {
             finish();
         }
 
+        // Retrieve task details from the database and use task title as an
+        // activity title
+        mTaskCursor = mDbHelper.getTaskPeer().fetchTask(mTaskId);
+        setTitle(mTaskCursor.getString(mTaskCursor.getColumnIndex(TaskPeer.KEY_TITLE)));
+
         // Find graph surface and start drawing the graph
         mGraph = (Panel) findViewById(R.id.graph_surface);
         drawGraph();

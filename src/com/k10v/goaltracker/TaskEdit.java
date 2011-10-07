@@ -32,7 +32,6 @@ public class TaskEdit extends Activity {
 
         // Setup the View
         setContentView(R.layout.task_edit);
-        setTitle(R.string.title_edit_task);
 
         // Find form inputs
         mTitleText = (EditText) findViewById(R.id.task_title);
@@ -47,6 +46,13 @@ public class TaskEdit extends Activity {
         if (mRowId == null) {
             Bundle extras = getIntent().getExtras();
             mRowId = (extras == null) ? null : extras.getLong(TaskPeer.KEY_ID);
+        }
+
+        // Set title
+        if (mRowId == null) {
+            setTitle(R.string.title_add_task);
+        } else {
+            setTitle(R.string.title_edit_task);
         }
 
         populateFields();

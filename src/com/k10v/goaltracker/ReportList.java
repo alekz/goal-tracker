@@ -32,6 +32,7 @@ public class ReportList extends ListActivity {
     public static final int MENU_ID_DELETE_REPORT = Menu.FIRST + 2;
 
     private GoalTrackerDbAdapter mDbHelper;
+    private Cursor mTaskCursor;
     private Cursor mReportsCursor;
     private long mTaskId;
 
@@ -70,6 +71,11 @@ public class ReportList extends ListActivity {
             Log.e(TAG, "Task ID is empty");
             finish();
         }
+
+        // Retrieve task details from the database and use task title as an
+        // activity title
+        mTaskCursor = mDbHelper.getTaskPeer().fetchTask(mTaskId);
+        setTitle(mTaskCursor.getString(mTaskCursor.getColumnIndex(TaskPeer.KEY_TITLE)));
 
         fillReportsList();
 

@@ -46,7 +46,6 @@ public class ReportEdit extends Activity {
 
         // Setup the View
         setContentView(R.layout.report_edit);
-        setTitle(R.string.title_edit_report);
 
         // Find form inputs
         mDatePicker = (Button) findViewById(R.id.report_date_picker);
@@ -101,6 +100,13 @@ public class ReportEdit extends Activity {
                     // Use default date
                 }
             }
+        }
+
+        // Set title
+        if (mRowId == null) {
+            setTitle(R.string.title_add_report);
+        } else {
+            setTitle(R.string.title_edit_report);
         }
 
         populateFields();

@@ -24,6 +24,7 @@
 
     <!-- Edit task -->
     <string name="title_edit_task">Edit Task</string>
+    <string name="title_add_task">Add Task</string>
     <string name="task_title">Title</string>
     <string name="task_default_title">New task</string>
     <string name="task_start_value">Start value</string>
@@ -40,6 +41,7 @@
 
     <!-- Delete report -->
     <string name="title_edit_report">Edit Report</string>
+    <string name="title_add_report">Add Report</string>
     <string name="report_date">Date</string>
     <string name="report_value">Value</string>
     <string name="button_save_report">Save</string>
