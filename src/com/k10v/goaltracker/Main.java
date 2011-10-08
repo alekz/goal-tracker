@@ -171,8 +171,6 @@ public class Main extends ListActivity {
     @Override
     protected Dialog onCreateDialog(int id) {
 
-        Dialog dialog;
-
         switch (id) {
 
         // Confirmation dialog for "Delete Task"
@@ -183,16 +181,11 @@ public class Main extends ListActivity {
                     fillTasksList();
                 }
             };
-            dialog = builder.create();
-            break;
-
-        default:
-            dialog = null;
-            break;
+            return builder.create();
 
         }
 
-        return dialog;
+        return null;
     }
 
     /**

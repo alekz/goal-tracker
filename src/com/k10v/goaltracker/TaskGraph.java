@@ -143,8 +143,6 @@ public class TaskGraph extends Activity {
     @Override
     protected Dialog onCreateDialog(int id) {
 
-        Dialog dialog;
-
         switch (id) {
 
         // Confirmation dialog for "Delete Task"
@@ -155,16 +153,11 @@ public class TaskGraph extends Activity {
                     finish();
                 }
             };
-            dialog = builder.create();
-            break;
-
-        default:
-            dialog = null;
-            break;
+            return builder.create();
 
         }
 
-        return dialog;
+        return null;
     }
 
     /**
