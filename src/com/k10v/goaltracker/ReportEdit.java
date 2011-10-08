@@ -11,17 +11,20 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
-// TODO: handle empty/invalid form values
-
 public class ReportEdit extends Activity {
 
-    static final int DATE_DIALOG_ID = 0;
+    private static final int DIALOG_SELECT_DATE_ID = 0;
+    private static final int DIALOG_CONFIRM_DELETE_REPORT_ID = 1;
+
+    public static final int MENU_ID_DELETE_REPORT = Menu.FIRST;
 
     private GoalTrackerDbAdapter mDbHelper;
     private Cursor mReportCursor;
@@ -55,7 +58,7 @@ public class ReportEdit extends Activity {
         mDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialog(DATE_DIALOG_ID);
+                showDialog(DIALOG_SELECT_DATE_ID);
             }
         });
 
@@ -123,6 +126,36 @@ public class ReportEdit extends Activity {
     }
 
     /**
+     * Create main menu.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        if (mRowId != null) {
+            menu.add(0, MENU_ID_DELETE_REPORT, 0, R.string.menu_delete_report)
+                    .setIcon(android.R.drawable.ic_menu_delete);
+        }
+        return result;
+    }
+
+    /**
+     * Main menu item clicked
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+        case MENU_ID_DELETE_REPORT:
+            runDeleteReport();
+            return true;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
      * Called when activity state should be temporarily saved, for example when
      * activity is about to be killed in order to retrieve system resources
      */
@@ -139,7 +172,7 @@ public class ReportEdit extends Activity {
     protected Dialog onCreateDialog(int id) {
         switch (id) {
 
-        case DATE_DIALOG_ID:
+        case DIALOG_SELECT_DATE_ID:
 
             DatePickerDialog.OnDateSetListener dateSetListener =
                 new DatePickerDialog.OnDateSetListener() {
@@ -155,7 +188,18 @@ public class ReportEdit extends Activity {
                     mCalendar.get(Calendar.YEAR),
                     mCalendar.get(Calendar.MONTH),
                     mCalendar.get(Calendar.DAY_OF_MONTH));
+
+        case DIALOG_CONFIRM_DELETE_REPORT_ID:
+            DeleteReportDialogBuilder builder = new DeleteReportDialogBuilder(this, mDbHelper, mRowId) {
+                @Override
+                public void afterDeleteReport() {
+                    finish();
+                }
+            };
+            return builder.create();
+
         }
+
         return null;
     }
 
@@ -274,5 +318,13 @@ public class ReportEdit extends Activity {
             Toast toast = Toast.makeText(getApplicationContext(), toastMessageId, Toast.LENGTH_SHORT);
             toast.show();
         }
+    }
+
+    /**
+     * Launches confirmation dialog asking is user really wants to delete the
+     * report, then deletes it if user confirms
+     */
+    private void runDeleteReport() {
+        showDialog(DIALOG_CONFIRM_DELETE_REPORT_ID);
     }
 }

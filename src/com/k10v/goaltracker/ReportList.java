@@ -1,9 +1,7 @@
 package com.k10v.goaltracker;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -15,7 +13,6 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class ReportList extends ListActivity {
@@ -125,7 +122,6 @@ public class ReportList extends ListActivity {
 
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        // TODO: Set menu title
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         Cursor c = mReportsCursor;
         c.moveToPosition(info.position);
@@ -187,48 +183,21 @@ public class ReportList extends ListActivity {
     @Override
     protected Dialog onCreateDialog(int id) {
 
-        Dialog dialog;
-
         switch (id) {
 
         // Confirmation dialog for "Delete Task"
         case DIALOG_CONFIRM_DELETE_REPORT_ID:
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder
-                    // Title
-                    .setMessage(R.string.message_confirm_delete_report)
-
-                    // "Yes" button
-                    .setPositiveButton(R.string.button_yes,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                        int which) {
-                                    doDeleteReport(rowIdToDelete);
-                                    dialog.dismiss();
-                                }
-                            })
-
-                    // "No" button
-                    .setNegativeButton(R.string.button_no,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                        int which) {
-                                    dialog.cancel();
-                                }
-                            });
-
-            dialog = builder.create();
-            break;
-
-        default:
-            dialog = null;
-            break;
+            DeleteReportDialogBuilder builder = new DeleteReportDialogBuilder(this, mDbHelper, rowIdToDelete) {
+                @Override
+                public void afterDeleteReport() {
+                    fillReportsList();
+                }
+            };
+            return builder.create();
 
         }
 
-        return dialog;
+        return null;
     }
 
     /**
@@ -260,27 +229,6 @@ public class ReportList extends ListActivity {
     private void runDeleteReport(long rowId) {
         rowIdToDelete = rowId;
         showDialog(DIALOG_CONFIRM_DELETE_REPORT_ID);
-    }
-
-    /**
-     * Actually deletes report with given ID and reloads the list of reports.
-     * Shouldn't be called directly, use runDeleteReport() instead.
-     *
-     * @param rowId ID of the report to delete
-     */
-    private void doDeleteReport(long rowId) {
-
-        // Delete the report
-        mDbHelper.getReportPeer().deleteReport(rowId);
-
-        // Show message
-        Toast toast = Toast.makeText(getApplicationContext(),
-                R.string.message_report_deleted, Toast.LENGTH_SHORT);
-        toast.show();
-
-        // Update the list
-        fillReportsList();
-
     }
 
     /**

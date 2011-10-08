@@ -12,6 +12,7 @@
     <string name="menu_delete_task">Delete Task</string>
     <string name="menu_view_task_reports">View Reports</string>
     <string name="menu_create_report">Add Report</string>
+    <string name="menu_delete_report">Delete Report</string>
     <string name="context_menu_edit_task">Edit</string>
     <string name="context_menu_delete_task">Delete</string>
     <string name="context_menu_view_task_graph">Graph</string>
