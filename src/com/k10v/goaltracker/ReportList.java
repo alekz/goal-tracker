@@ -94,7 +94,8 @@ public class ReportList extends ListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_ID_CREATE_REPORT, 0, R.string.menu_create_report);
+        menu.add(0, MENU_ID_CREATE_REPORT, 0, R.string.menu_create_report)
+                .setIcon(android.R.drawable.ic_menu_add);
         return result;
     }
 

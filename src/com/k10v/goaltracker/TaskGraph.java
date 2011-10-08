@@ -89,10 +89,14 @@ public class TaskGraph extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_ID_CREATE_REPORT, 0, R.string.menu_create_report);
-        menu.add(0, MENU_ID_VIEW_TASK_REPORTS, 1, R.string.menu_view_task_reports);
-        menu.add(0, MENU_ID_EDIT_TASK, 2, R.string.menu_edit_task);
-        menu.add(0, MENU_ID_DELETE_TASK, 3, R.string.menu_delete_task);
+        menu.add(0, MENU_ID_CREATE_REPORT, 0, R.string.menu_create_report)
+                .setIcon(android.R.drawable.ic_menu_add);
+        menu.add(0, MENU_ID_VIEW_TASK_REPORTS, 1, R.string.menu_view_task_reports)
+                .setIcon(android.R.drawable.ic_menu_sort_by_size);
+        menu.add(0, MENU_ID_EDIT_TASK, 2, R.string.menu_edit_task)
+                .setIcon(android.R.drawable.ic_menu_edit);
+        menu.add(0, MENU_ID_DELETE_TASK, 3, R.string.menu_delete_task)
+                .setIcon(android.R.drawable.ic_menu_delete);
         return result;
     }
 

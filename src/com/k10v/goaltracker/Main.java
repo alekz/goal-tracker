@@ -68,7 +68,8 @@ public class Main extends ListActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_ID_CREATE_TASK, 0, R.string.menu_create_task);
+        menu.add(0, MENU_ID_CREATE_TASK, 0, R.string.menu_create_task)
+                .setIcon(android.R.drawable.ic_menu_add);
         return result;
     }
 
