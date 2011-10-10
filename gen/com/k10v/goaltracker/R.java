@@ -91,6 +91,7 @@ public final class R {
         public static final int title_edit_task=0x7f040010;
     }
     public static final class style {
+        public static final int FormRow=0x7f050001;
         public static final int ListRow=0x7f050000;
     }
 }
