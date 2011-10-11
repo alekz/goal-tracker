@@ -44,7 +44,7 @@ public class ReportPeer extends BasePeer {
 
     /**
      * Create a new report
-     * 
+     *
      * @param taskId
      * @param date
      * @param value
@@ -77,7 +77,7 @@ public class ReportPeer extends BasePeer {
 
     /**
      * Update the report with given ID using the details provided
-     * 
+     *
      * @param rowId
      * @param date
      * @param value
@@ -89,7 +89,7 @@ public class ReportPeer extends BasePeer {
 
     /**
      * Delete the report with the given rowId
-     * 
+     *
      * @param rowId
      * @return true if deleted, false otherwise
      */
@@ -110,7 +110,7 @@ public class ReportPeer extends BasePeer {
     /**
      * Return a Cursor over the list of all reports of the given task, reports
      * are sorted by date
-     * 
+     *
      * @param taskId
      * @param reverseOrder
      * @return Cursor over all reports of the given task
@@ -127,7 +127,7 @@ public class ReportPeer extends BasePeer {
 
     /**
      * Return a Cursor positioned at the report that matches the given rowId
-     * 
+     *
      * @param rowId id of report to retrieve
      * @return Cursor positioned to matching report, if found
      * @throws SQLException if report could not be found/retrieved
@@ -135,6 +135,25 @@ public class ReportPeer extends BasePeer {
     public Cursor fetchReport(long rowId) throws SQLException {
         Cursor mCursor = mDb.query(true, TABLE, getFields(),
                 KEY_ID + "=" + rowId,
+                null, null, null, null, null);
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    /**
+     * Return a Cursor positioned at the report that matches the given taskId
+     * and date
+     * 
+     * @param taskId
+     * @param date Date in yyyy-MM-dd format
+     * @return Cursor positioned to matching report, if found
+     * @throws SQLException if report could not be found/retrieved
+     */
+    public Cursor fetchReportByTaskIdAndDate(long taskId, String date) throws SQLException {
+        Cursor mCursor = mDb.query(true, TABLE, getFields(),
+                KEY_TASK_ID + "=" + taskId + " AND " + KEY_DATE + "= '" + date + "'",
                 null, null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();

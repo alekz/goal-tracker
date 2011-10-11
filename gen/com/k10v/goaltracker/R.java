@@ -14,19 +14,20 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int button_cancel_edit_report=0x7f060003;
-        public static final int button_cancel_edit_task=0x7f06000a;
-        public static final int button_save_report=0x7f060002;
-        public static final int button_save_task=0x7f060009;
-        public static final int graph_surface=0x7f06000b;
+        public static final int button_cancel_edit_report=0x7f060004;
+        public static final int button_cancel_edit_task=0x7f06000b;
+        public static final int button_save_report=0x7f060003;
+        public static final int button_save_task=0x7f06000a;
+        public static final int graph_surface=0x7f06000c;
         public static final int report_date_picker=0x7f060000;
-        public static final int report_row_date=0x7f060004;
-        public static final int report_row_value=0x7f060005;
-        public static final int report_value=0x7f060001;
-        public static final int task_row_text=0x7f06000c;
-        public static final int task_start_value=0x7f060007;
-        public static final int task_target_value=0x7f060008;
-        public static final int task_title=0x7f060006;
+        public static final int report_error_date=0x7f060001;
+        public static final int report_row_date=0x7f060005;
+        public static final int report_row_value=0x7f060006;
+        public static final int report_value=0x7f060002;
+        public static final int task_row_text=0x7f06000d;
+        public static final int task_start_value=0x7f060008;
+        public static final int task_target_value=0x7f060009;
+        public static final int task_title=0x7f060007;
     }
     public static final class layout {
         public static final int report_edit=0x7f030000;
@@ -76,6 +77,7 @@ public final class R {
         public static final int message_task_deleted=0x7f04001a;
         public static final int message_task_updated=0x7f040019;
         public static final int report_date=0x7f04001f;
+        public static final int report_error_date_exists=0x7f040027;
         public static final int report_value=0x7f040020;
         public static final int task_default_title=0x7f040013;
         public static final int task_start_value=0x7f040014;
@@ -83,7 +85,7 @@ public final class R {
         public static final int task_title=0x7f040012;
         public static final int title_add_report=0x7f04001e;
         public static final int title_add_task=0x7f040011;
-        /**  Delete report 
+        /**  Edit report 
          */
         public static final int title_edit_report=0x7f04001d;
         /**  Edit task 
@@ -91,6 +93,7 @@ public final class R {
         public static final int title_edit_task=0x7f040010;
     }
     public static final class style {
+        public static final int FormErrorMessage=0x7f050002;
         public static final int FormRow=0x7f050001;
         public static final int ListRow=0x7f050000;
     }

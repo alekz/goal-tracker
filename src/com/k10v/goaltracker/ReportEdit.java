@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ReportEdit extends Activity {
@@ -33,6 +34,8 @@ public class ReportEdit extends Activity {
     private Long mTaskId;
     private Button mDatePicker;
     private EditText mValueText;
+    private TextView mDateError;
+    private Button mSaveButton;
 
     private Calendar mCalendar;
 
@@ -53,6 +56,8 @@ public class ReportEdit extends Activity {
         // Find form inputs
         mDatePicker = (Button) findViewById(R.id.report_date_picker);
         mValueText = (EditText) findViewById(R.id.report_value);
+        mDateError = (TextView) findViewById(R.id.report_error_date);
+        mSaveButton = (Button) findViewById(R.id.button_save_report);
 
         // Add a click listener to the date picker button
         mDatePicker.setOnClickListener(new View.OnClickListener() {
@@ -62,46 +67,51 @@ public class ReportEdit extends Activity {
             }
         });
 
-        mCalendar = Calendar.getInstance();
+        mCalendar = Calendar.getInstance(); // Is set to current date by default
 
-        // Retrieve report ID: first check if it's stored in saved state, if not
-        // then check Intent's extras. If ID is empty, we will create a new
+        // Retrieve report data: first check if it's stored in saved state, if
+        // not then check Intent's extras. If ID is empty, we will create a new
         // report rather than edit an existing one
         if (savedInstanceState != null) {
 
             mRowId = (Long) savedInstanceState.getSerializable(ReportPeer.KEY_ID);
             mTaskId = (Long) savedInstanceState.getSerializable(ReportPeer.KEY_TASK_ID);
+            mCalendar = (Calendar) savedInstanceState.getSerializable(ReportPeer.KEY_DATE);
 
         } else {
 
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
+
                 mRowId = extras.getLong(ReportPeer.KEY_ID);
+
                 if (mRowId == 0) {
+
+                    // Add new report (task ID must be provided in this case)
+
                     mRowId = null;
+                    mTaskId = extras.getLong(ReportPeer.KEY_TASK_ID);
+
+                } else {
+
+                    // Edit existing report
+
+                    // Load database data for an existing report
+                    Cursor c = mReportCursor = mDbHelper.getReportPeer().fetchReport(mRowId);
+                    startManagingCursor(mReportCursor);
+                    mTaskId = c.getLong(c.getColumnIndexOrThrow(ReportPeer.KEY_TASK_ID));
+
+                    // Convert date from SQL format to a Calendar object
+                    String dateString = c.getString(c.getColumnIndexOrThrow(ReportPeer.KEY_DATE));
+                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    try {
+                        mCalendar.setTime(df.parse(dateString));
+                    } catch (ParseException e) {
+                        // Use default date
+                    }
+
                 }
-                mTaskId = extras.getLong(ReportPeer.KEY_TASK_ID);
-            }
-        }
 
-        if (mRowId != null) {
-
-            // Load database data for an existing report
-            mReportCursor = mDbHelper.getReportPeer().fetchReport(mRowId);
-            startManagingCursor(mReportCursor);
-
-            // Load date from saved instance state or from database
-            if (savedInstanceState != null) {
-                mCalendar = (Calendar) savedInstanceState.getSerializable(ReportPeer.KEY_DATE);
-            } else {
-                Cursor c = mReportCursor;
-                String dateString = c.getString(c.getColumnIndexOrThrow(ReportPeer.KEY_DATE));
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                try {
-                    mCalendar.setTime(df.parse(dateString));
-                } catch (ParseException e) {
-                    // Use default date
-                }
             }
         }
 
@@ -163,6 +173,7 @@ public class ReportEdit extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(ReportPeer.KEY_ID, mRowId);
+        outState.putSerializable(ReportPeer.KEY_TASK_ID, mTaskId);
         outState.putSerializable(ReportPeer.KEY_DATE, mCalendar);
         // We don't need to save form values because this is handled
         // automatically for every View object
@@ -267,6 +278,38 @@ public class ReportEdit extends Activity {
     private void updateDisplay() {
         String dateString = android.text.format.DateFormat.format("E, MMM d, yyyy", mCalendar).toString();
         mDatePicker.setText(dateString);
+
+        // Checks if report with given date already exists; if so, displays
+        // error message and disables "Save" button
+        if (reportWithCurrentDateExists()) {
+            mDateError.setVisibility(View.VISIBLE);
+            mSaveButton.setEnabled(false);
+        } else {
+            mDateError.setVisibility(View.GONE);
+            mSaveButton.setEnabled(true);
+        }
+    }
+
+    /**
+     * Check whether a report with the current date already exists
+     *
+     * @return True if report with the current date exists, false otherwise
+     */
+    private boolean reportWithCurrentDateExists() {
+        boolean exists = false;
+        String sqlDateString = android.text.format.DateFormat.format("yyyy-MM-dd", mCalendar).toString();
+        Cursor reportCursor = mDbHelper.getReportPeer().fetchReportByTaskIdAndDate(mTaskId, sqlDateString);
+        startManagingCursor(reportCursor);
+        if (reportCursor != null && reportCursor.getCount() > 0) {
+            long rowId = reportCursor.getLong(reportCursor.getColumnIndexOrThrow(ReportPeer.KEY_ID));
+            if (mRowId == null || mRowId != rowId) {
+                exists = true;
+            }
+        }
+        if (reportCursor != null) {
+            reportCursor.close();
+        }
+        return exists;
     }
 
     /**
@@ -284,6 +327,11 @@ public class ReportEdit extends Activity {
      * Save form data to the database
      */
     private void saveForm() {
+
+        if (reportWithCurrentDateExists()) {
+            // Can't save this case
+            return;
+        }
 
         boolean isNewReport = (mRowId == null);
 
