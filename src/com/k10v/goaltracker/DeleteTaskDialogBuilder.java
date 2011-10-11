@@ -31,11 +31,13 @@ abstract public class DeleteTaskDialogBuilder extends AlertDialog.Builder {
      */
     private void build() {
 
-        // Title
-        setMessage(R.string.message_confirm_delete_task);
+        // Title and message
+        setIcon(android.R.drawable.ic_dialog_alert);
+        setTitle(R.string.delete_task_title);
+        setMessage(R.string.delete_task_message);
 
-        // "Yes" button
-        setPositiveButton(R.string.button_yes,
+        // "Delete" button
+        setPositiveButton(R.string.button_delete,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -45,8 +47,8 @@ abstract public class DeleteTaskDialogBuilder extends AlertDialog.Builder {
                     }
                 });
 
-        // "No" button
-        setNegativeButton(R.string.button_no,
+        // "Cancel" button
+        setNegativeButton(R.string.button_cancel,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
