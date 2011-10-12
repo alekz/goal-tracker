@@ -4,47 +4,52 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-    <LinearLayout
-        android:orientation="vertical"
+    <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1">
-        <LinearLayout style="@style/FormRow">
-            <TextView
-                android:text="@string/task_title"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                style="@android:style/TextAppearance.Medium"/>
-            <EditText
-                android:id="@+id/task_title"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            >
+            <LinearLayout style="@style/FormRow">
+                <TextView
+                    android:text="@string/task_title"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    style="@android:style/TextAppearance.Medium"/>
+                <EditText
+                    android:id="@+id/task_title"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout style="@style/FormRow">
+                <TextView
+                    android:text="@string/task_start_value"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    style="@android:style/TextAppearance.Medium"/>
+                <EditText
+                    android:id="@+id/task_start_value"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal|numberSigned"/>
+            </LinearLayout>
+            <LinearLayout style="@style/FormRow">
+                <TextView
+                    android:text="@string/task_target_value"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    style="@android:style/TextAppearance.Medium"/>
+                <EditText
+                    android:id="@+id/task_target_value"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal|numberSigned"/>
+            </LinearLayout>
         </LinearLayout>
-        <LinearLayout style="@style/FormRow">
-            <TextView
-                android:text="@string/task_start_value"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                style="@android:style/TextAppearance.Medium"/>
-            <EditText
-                android:id="@+id/task_start_value"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal|numberSigned"/>
-        </LinearLayout>
-        <LinearLayout style="@style/FormRow">
-            <TextView
-                android:text="@string/task_target_value"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                style="@android:style/TextAppearance.Medium"/>
-            <EditText
-                android:id="@+id/task_target_value"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal|numberSigned"/>
-        </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
