@@ -80,6 +80,12 @@ public class ReportList extends ListActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(TaskPeer.KEY_ID, mTaskId);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         mDbHelper.close();
