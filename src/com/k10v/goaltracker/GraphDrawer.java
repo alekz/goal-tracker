@@ -30,7 +30,11 @@ public class GraphDrawer {
 
     private Date mMinDate;
     private Date mMaxDate;
-    int mDateRange;
+    private int mDateRange;
+
+    private boolean mIsTouched = false;
+    private float mPointerX = 0;
+    private float mPointerY = 0;
 
     public void setCanvas(Canvas canvas) {
         mCanvas = canvas;
@@ -69,47 +73,54 @@ public class GraphDrawer {
         mLastValue = value;
     }
 
-    public void draw() {
-
-        // Prepare line colors for different parst of the graph
-
-        Paint paintProgress = new Paint();
-        paintProgress.setARGB(255, 64, 255, 64);
-
-        Paint paintAxes = new Paint();
-        paintAxes.setARGB(255, 192, 192, 192);
-
-        Paint paintCurrent = new Paint();
-        paintCurrent.setARGB(255, 0, 64, 0);
-
-        Paint paintDays = new Paint();
-        paintDays.setARGB(255, 32, 32, 32);
-
-        // Clear canvas
-        mCanvas.drawColor(Color.BLACK);
-
-        drawVerticalGrid(paintDays);
-        drawCurrentValue(paintCurrent);
-        drawAxes(paintAxes);
-        drawProgress(paintProgress);
+    public void setPointer(boolean isTouched, float x, float y) {
+        mIsTouched = isTouched;
+        mPointerX = x;
+        mPointerY = y;
     }
 
-    private void drawVerticalGrid(Paint paint) {
+    public void draw() {
+
+        mCanvas.drawColor(Color.BLACK);
+
+        drawVerticalGrid();
+        drawCurrentValue();
+        drawPointer();
+        drawAxes();
+        drawProgress();
+    }
+
+    private void drawVerticalGrid() {
+
+        Paint paint = new Paint();
+        paint.setARGB(255, 32, 32, 32);
+
         for (int i = 0; i <= mDateRange; i++) {
             drawVerticalLineForDayN(i, paint);
         }
     }
 
-    private void drawAxes(Paint paint) {
+    private void drawAxes() {
+
+        Paint paint = new Paint();
+        paint.setARGB(255, 192, 192, 192);
+
         drawHorizontalLineForValue(mStartValue, paint);
         drawVerticalLine(mCanvasXMin, paint);
     }
 
-    private void drawCurrentValue(Paint paint) {
+    private void drawCurrentValue() {
+
+        Paint paint = new Paint();
+        paint.setARGB(255, 0, 64, 0);
+
         drawHorizontalLineForValue(mLastValue, paint);
     }
 
-    private void drawProgress(Paint paint) {
+    private void drawProgress() {
+
+        Paint paint = new Paint();
+        paint.setARGB(255, 64, 255, 64);
 
         Calendar cal = Calendar.getInstance();
         Date date = mMinDate;
@@ -140,6 +151,69 @@ public class GraphDrawer {
         }
     }
 
+    private void drawPointer() {
+
+        if (!mIsTouched) {
+            return;
+        }
+
+        // Find the date below the pointer
+        int dayN = getDayNByCanvasX(Math.round(mPointerX));
+        if (dayN <= 0 || mDateRange < dayN) {
+            return;
+        }
+
+        Calendar cal = Calendar.getInstance();
+        Date date = mMinDate;
+        float value1 = mStartValue;
+        float value2 = mStartValue;
+        for (int i = 1; i <= dayN; i++) {
+
+            if (mValues.containsKey(date)) {
+                value2 = mValues.get(date);
+            }
+
+            if (i == dayN - 1) {
+                value1 = value2;
+            }
+
+            // Next date
+            cal.setTime(date);
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            date = cal.getTime();
+        }
+
+        // X-coordinates of two vertical lines
+        int x1 = getCanvasXByDayN(dayN - 1);
+        int x2 = getCanvasXByDayN(dayN);
+
+        // Y-coordinates of two horizontal lines
+        int y1, y2;
+        boolean isNegativeDifference = false;
+        if (value1 <= value2) {
+            y1 = getCanvasYByValue(value2);
+            y2 = getCanvasYByValue(value1);
+        } else {
+            y1 = getCanvasYByValue(value1);
+            y2 = getCanvasYByValue(value2);
+            isNegativeDifference = true;
+        }
+
+        Paint paint = new Paint();
+
+        // Vertical fill
+        paint.setARGB(255, 128, 128, 128);
+        mCanvas.drawRect(x1, mCanvasYMin, x2 + 1, mCanvasYMax + 1, paint);
+
+        // Horizontal fill
+        if (isNegativeDifference) {
+            paint.setARGB(192, 192, 96, 96);
+        } else {
+            paint.setARGB(192, 64, 128, 64);
+        }
+        mCanvas.drawRect(mCanvasXMin, y1, mCanvasXMax + 1, y2 + 1, paint);
+    }
+
     private int getCanvasYByValue(float value) {
         return mCanvasYMax - Math.round(
                 (mCanvasYMax - mCanvasYMin) *
@@ -149,6 +223,10 @@ public class GraphDrawer {
 
     private int getCanvasXByDayN(int n) {
         return mCanvasXMin + (mCanvasXMax - mCanvasXMin) * n / mDateRange;
+    }
+
+    private int getDayNByCanvasX(float x) {
+        return (int) Math.ceil((x - mCanvasXMin) * mDateRange / (mCanvasXMax - mCanvasXMin));
     }
 
     private void drawHorizontalLine(int y, Paint paint) {

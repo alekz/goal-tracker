@@ -10,6 +10,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -27,6 +28,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     private Float mMaxValue = null;
 
     private HashMap<Date, Float> mValues;
+
+    private boolean mIsTouched = false;
+    private float mPointerX = 0;
+    private float mPointerY = 0;
 
     /**
      * When true, indicates that graph should be updated
@@ -116,6 +121,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         graph.setLastValue(mLastValue);
         graph.setValueRange(minValue, maxValue);
         graph.setDateRange(mMinDate, maxDate);
+        graph.setPointer(mIsTouched, mPointerX, mPointerY);
         graph.draw();
     }
 
@@ -197,5 +203,31 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
      */
     public boolean needsUpdate() {
         return mUpdate;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        mPointerX = event.getX();
+        mPointerY = event.getY();
+
+        switch (event.getAction()) {
+
+        case MotionEvent.ACTION_DOWN:
+            mIsTouched = true;
+            redraw();
+            return true;
+
+        case MotionEvent.ACTION_UP:
+            mIsTouched = false;
+            redraw();
+            return true;
+
+        case MotionEvent.ACTION_MOVE:
+            redraw();
+            return true;
+        }
+
+        return super.onTouchEvent(event);
     }
 }
