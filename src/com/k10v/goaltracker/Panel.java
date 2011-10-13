@@ -30,8 +30,10 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     private HashMap<Date, Float> mValues;
 
     private boolean mIsTouched = false;
-    private float mPointerX = 0;
-    private float mPointerY = 0;
+    private float mPointer1X = 0;
+    private float mPointer1Y = 0;
+    private float mPointer2X = 0;
+    private float mPointer2Y = 0;
 
     /**
      * When true, indicates that graph should be updated
@@ -121,7 +123,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         graph.setLastValue(mLastValue);
         graph.setValueRange(minValue, maxValue);
         graph.setDateRange(mMinDate, maxDate);
-        graph.setPointer(mIsTouched, mPointerX, mPointerY);
+        graph.setPointer(mIsTouched, mPointer1X, mPointer1Y, mPointer2X, mPointer2Y);
         graph.draw();
     }
 
@@ -208,8 +210,15 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        mPointerX = event.getX();
-        mPointerY = event.getY();
+        mPointer1X = event.getX(0);
+        mPointer1Y = event.getY(0);
+        if (event.getPointerCount() > 1) {
+            mPointer2X = event.getX(1);
+            mPointer2Y = event.getY(1);
+        } else {
+            mPointer2X = mPointer1X;
+            mPointer2Y = mPointer1Y;
+        }
 
         switch (event.getAction()) {
 
@@ -223,6 +232,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             redraw();
             return true;
 
+        case MotionEvent.ACTION_POINTER_DOWN:
+        case MotionEvent.ACTION_POINTER_UP:
         case MotionEvent.ACTION_MOVE:
             redraw();
             return true;

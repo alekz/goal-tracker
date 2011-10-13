@@ -33,8 +33,10 @@ public class GraphDrawer {
     private int mDateRange;
 
     private boolean mIsTouched = false;
-    private float mPointerX = 0;
-    private float mPointerY = 0;
+    private float mPointer1X = 0;
+    private float mPointer1Y = 0;
+    private float mPointer2X = 0;
+    private float mPointer2Y = 0;
 
     public void setCanvas(Canvas canvas) {
         mCanvas = canvas;
@@ -73,10 +75,12 @@ public class GraphDrawer {
         mLastValue = value;
     }
 
-    public void setPointer(boolean isTouched, float x, float y) {
+    public void setPointer(boolean isTouched, float x1, float y1, float x2, float y2) {
         mIsTouched = isTouched;
-        mPointerX = x;
-        mPointerY = y;
+        mPointer1X = x1;
+        mPointer1Y = y1;
+        mPointer2X = x2;
+        mPointer2Y = y2;
     }
 
     public void draw() {
@@ -157,24 +161,49 @@ public class GraphDrawer {
             return;
         }
 
-        // Find the date below the pointer
-        int dayN = getDayNByCanvasX(Math.round(mPointerX));
-        if (dayN <= 0 || mDateRange < dayN) {
+        // Find the dates below the pointers
+        int day1N = getDayNByCanvasX(Math.round(mPointer1X));
+        int day2N = getDayNByCanvasX(Math.round(mPointer2X));
+
+        // Make sure day 1 is earlier than day 2
+        if (day2N < day1N) {
+            int temp = day1N;
+            day1N = day2N;
+            day2N = temp;
+        }
+
+        // Check is pointer 1 is inside the graph
+        if (day1N <= 0 || mDateRange < day1N) {
             return;
+        }
+
+        // Make sure pointer 2 is inside the graph
+        if (day2N <= 0) {
+            day2N = 1;
+        }
+        if (mDateRange < day2N) {
+            day2N = mDateRange;
         }
 
         Calendar cal = Calendar.getInstance();
         Date date = mMinDate;
-        float value1 = mStartValue;
-        float value2 = mStartValue;
-        for (int i = 1; i <= dayN; i++) {
+
+        float value = mStartValue;
+        float value1 = value;
+        float value2 = value;
+
+        for (int i = 1; i <= day2N; i++) {
 
             if (mValues.containsKey(date)) {
-                value2 = mValues.get(date);
+                value = mValues.get(date);
             }
 
-            if (i == dayN - 1) {
-                value1 = value2;
+            if (i == day1N - 1) {
+                value1 = value;
+            }
+
+            if (i == day2N) {
+                value2 = value;
             }
 
             // Next date
@@ -184,8 +213,8 @@ public class GraphDrawer {
         }
 
         // X-coordinates of two vertical lines
-        int x1 = getCanvasXByDayN(dayN - 1);
-        int x2 = getCanvasXByDayN(dayN);
+        int x1 = getCanvasXByDayN(day1N - 1);
+        int x2 = getCanvasXByDayN(day2N);
 
         // Y-coordinates of two horizontal lines
         int y1, y2;
