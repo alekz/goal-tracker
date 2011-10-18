@@ -115,7 +115,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             minValue = mTargetValue;
         }
 
-        GraphDrawer graph = new GraphDrawer();
+        GraphDrawer graph = new GraphDrawer(getContext());
         graph.setCanvas(canvas);
         graph.setCanvasRectangle(0, 0, canvas.getWidth() - 1, canvas.getHeight() - 1);
         graph.setValues(mValues);
