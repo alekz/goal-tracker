@@ -35,6 +35,8 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     private float mPointer2X = 0;
     private float mPointer2Y = 0;
 
+    private GraphDrawer mGraph;
+
     /**
      * When true, indicates that graph should be updated
      */
@@ -43,8 +45,9 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
     public Panel(Context context, AttributeSet attrs) {
         super(context, attrs);
         getHolder().addCallback(this);
-
         setFocusable(true);
+
+        mGraph = new GraphDrawer(getContext());
     }
 
     @Override
@@ -115,16 +118,15 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
             minValue = mTargetValue;
         }
 
-        GraphDrawer graph = new GraphDrawer(getContext());
-        graph.setCanvas(canvas);
-        graph.setCanvasRectangle(0, 0, canvas.getWidth() - 1, canvas.getHeight() - 1);
-        graph.setValues(mValues);
-        graph.setStartValue(mStartValue);
-        graph.setLastValue(mLastValue);
-        graph.setValueRange(minValue, maxValue);
-        graph.setDateRange(mMinDate, maxDate);
-        graph.setPointer(mIsTouched, mPointer1X, mPointer1Y, mPointer2X, mPointer2Y);
-        graph.draw();
+        mGraph.setCanvas(canvas);
+        mGraph.setCanvasRectangle(0, 0, canvas.getWidth() - 1, canvas.getHeight() - 1);
+        mGraph.setValues(mValues);
+        mGraph.setStartValue(mStartValue);
+        mGraph.setLastValue(mLastValue);
+        mGraph.setValueRange(minValue, maxValue);
+        mGraph.setDateRange(mMinDate, maxDate);
+        mGraph.setPointer(mIsTouched, mPointer1X, mPointer1Y, mPointer2X, mPointer2Y);
+        mGraph.draw();
     }
 
     /**
