@@ -274,48 +274,78 @@ public class GraphDrawer {
         Paint paint = valueDiff < 0 ? mPaintSelectedValueNegative : mPaintSelectedValue;
         mCanvas.drawRect(mCanvasXMin, yMin, mCanvasXMax + 1, yMax + 1, paint);
 
-        // Draw pointer's labels
+        // Build pointer's labels
 
-        DecimalFormat format = new DecimalFormat("#.#####");
-
-        int labelX = mCanvasXMin + mTickSize + mLabelTextMargin;
-
-        String topLabel = null;
-        String bottomLabel = null;
-
+        String topLabel;
+        String bottomLabel;
 
         if (0 < valueDiff) {
-            bottomLabel = format.format(startValue);
-            topLabel = format.format(finishValue) + " (+" + format.format(valueDiff) + ")";
+            bottomLabel = formatNumber(startValue);
+            topLabel = formatNumber(finishValue) + " (" + formatNumber(valueDiff, true) + ")";
         } else if (valueDiff < 0) {
-            topLabel = format.format(startValue);
+            topLabel = formatNumber(startValue);
             // "\u2212" is a proper "minus" sign
-            bottomLabel = format.format(finishValue) + " (\u2212" + format.format(-valueDiff) + ")";
+            bottomLabel = formatNumber(finishValue) + " (" + formatNumber(valueDiff, true) + ")";
         } else {
-            topLabel = format.format(finishValue);
+            topLabel = formatNumber(finishValue);
             // Show only one label if value has not changed
+            bottomLabel = null;
         }
 
-        // Calculate label's positions
+        // Calculate label's positions (when calculating labels' heights, we
+        // don't really care about the real bounds of the labels, only about
+        // height of a digit)
         Rect bounds = new Rect();
         mPaintLabels.getTextBounds("0", 0, 1, bounds);
         int topLabelY = yMin - bounds.bottom - mLabelTextMargin;
         int bottomLabelY = yMax - bounds.top + mLabelTextMargin;
 
-        // Top label
+        // Check labels' bounds; if they don't fit into the drawing area,
+        // combine them into one label
+        final String combineLabelsSeparator = "...";
+        int labelHeight = bounds.bottom - bounds.top;
+        if (topLabel != null && topLabelY - labelHeight - mLabelTextMargin < mCanvasYMin) {
+
+            // Move top label to the bottom when it is too close to the border
+            if (0 < valueDiff) {
+                bottomLabel = bottomLabel + combineLabelsSeparator + topLabel;
+            } else if (valueDiff < 0) {
+                bottomLabel = topLabel + combineLabelsSeparator + bottomLabel;
+            } else {
+                bottomLabel = topLabel;
+            }
+            topLabel = null;
+
+        } else if (bottomLabel != null && mCanvasYMax < bottomLabelY + mLabelTextMargin) {
+
+            // Move bottom label to the top when it is too close to the border
+            if (0 < valueDiff) {
+                topLabel = bottomLabel + combineLabelsSeparator + topLabel;
+            } else if (valueDiff < 0) {
+                topLabel = topLabel + combineLabelsSeparator + bottomLabel;
+            } else {
+                // Nothing to change, we don't have bottom label in this case
+            }
+            bottomLabel = null;
+
+        }
+
+        // Draw the labels
+        int labelX = mCanvasXMin + mTickSize + mLabelTextMargin;
         if (topLabel != null) {
             mCanvas.drawText(topLabel, labelX, topLabelY, mPaintLabels);
         }
-
-        // Bottom label
         if (bottomLabel != null) {
             mCanvas.drawText(bottomLabel, labelX, bottomLabelY, mPaintLabels);
         }
 
+        // Draw the ticks
         drawHorizontalTickForValue(finishValue);
         drawHorizontalTickForValue(startValue);
+        drawVerticalTickForDayN(startDayN);
+        drawVerticalTickForDayN(finishDayN);
 
-        // TODO: temporarily disabled
+        // TODO: temporarily (?) disabled
         // drawLabels();
     }
 
@@ -352,7 +382,7 @@ public class GraphDrawer {
         // Min date
         if (drawMinDate) {
 
-            text = getFormattedDate(mMinDate);
+            text = formatDate(mMinDate);
             mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
 
             // Try to center the label against date column, but adjust label's
@@ -370,14 +400,13 @@ public class GraphDrawer {
                     mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
                     mPaintLabels);
 
-            drawVerticalTickForDayN(0);
             drawVerticalTickForDayN(1);
         }
 
         // Max date
         if (drawMaxDate) {
 
-            text = getFormattedDate(mMaxDate);
+            text = formatDate(mMaxDate);
             mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
 
             // Try to center the label against date column, but adjust label's
@@ -396,7 +425,6 @@ public class GraphDrawer {
                     mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
                     mPaintLabels);
 
-            drawVerticalTickForDayN(mDateRange - 1);
             drawVerticalTickForDayN(mDateRange);
         }
     }
@@ -406,7 +434,7 @@ public class GraphDrawer {
     }
 
     // TODO: Move this utility method outside?
-    private String getFormattedDate(Date date) {
+    private String formatDate(Date date) {
 
         Calendar today = Calendar.getInstance();
         today.set(Calendar.HOUR_OF_DAY, 0);
@@ -423,6 +451,23 @@ public class GraphDrawer {
 
         String format = calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) ? "MMM d" : "MMM d, yyyy";
         return android.text.format.DateFormat.format(format, date).toString();
+    }
+
+    // TODO: Move this utility method outside?
+    private String formatNumber(float number, boolean withPlusSign) {
+        final DecimalFormat format = new DecimalFormat("#.#####");
+        if (0 < number) {
+            return (withPlusSign ? "+" : "") + format.format(number);
+        } else if (number < 0) {
+            // "\u2212" is a proper "minus" sign
+            return "\u2212" + format.format(-number);
+        } else {
+            return "0";
+        }
+    }
+
+    private String formatNumber(float number) {
+        return formatNumber(number, false);
     }
 
     private int getCanvasYByValue(float value) {
@@ -457,7 +502,14 @@ public class GraphDrawer {
     }
 
     private void drawVerticalTickForDayN(int n) {
-        int x = getCanvasXByDayN(n);
+
+        // It's always two ticks for one day
+        int x;
+
+        x = getCanvasXByDayN(n);
+        mCanvas.drawLine(x, mCanvasYMax, x, mCanvasYMax + mTickSize, mPaintAxes);
+
+        x = getCanvasXByDayN(n - 1);
         mCanvas.drawLine(x, mCanvasYMax, x, mCanvasYMax + mTickSize, mPaintAxes);
     }
 
