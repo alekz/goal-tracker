@@ -18,7 +18,7 @@ public class GraphDrawer {
 
     private final int mLabelTextMargin = 5;
     private final int mLabelTextSize = 16;
-    private final int mTickSize = 4;
+    private final int mTickSize = 5;
 
     private Context context;
 
@@ -201,48 +201,48 @@ public class GraphDrawer {
         }
 
         // Find the dates below the pointers
-        int day1N = getDayNByCanvasX(Math.round(mPointer1X));
-        int day2N = getDayNByCanvasX(Math.round(mPointer2X));
+        int startDayN = getDayNByCanvasX(Math.round(mPointer1X));
+        int finishDayN = getDayNByCanvasX(Math.round(mPointer2X));
 
         // Make sure day 1 is earlier than day 2
-        if (day2N < day1N) {
-            int temp = day1N;
-            day1N = day2N;
-            day2N = temp;
+        if (finishDayN < startDayN) {
+            int temp = startDayN;
+            startDayN = finishDayN;
+            finishDayN = temp;
         }
 
         // Check is pointer 1 is inside the graph
-        if (day1N <= 0 || mDateRange < day1N) {
+        if (startDayN <= 0 || mDateRange < startDayN) {
             return;
         }
 
         // Make sure pointer 2 is inside the graph
-        if (day2N <= 0) {
-            day2N = 1;
+        if (finishDayN <= 0) {
+            finishDayN = 1;
         }
-        if (mDateRange < day2N) {
-            day2N = mDateRange;
+        if (mDateRange < finishDayN) {
+            finishDayN = mDateRange;
         }
 
         Calendar cal = Calendar.getInstance();
         Date date = mMinDate;
 
         float value = mStartValue;
-        float value1 = value;
-        float value2 = value;
+        float startValue = value;
+        float finishValue = value;
 
-        for (int i = 1; i <= day2N; i++) {
+        for (int i = 1; i <= finishDayN; i++) {
 
             if (mValues.containsKey(date)) {
                 value = mValues.get(date);
             }
 
-            if (i == day1N - 1) {
-                value1 = value;
+            if (i == startDayN - 1) {
+                startValue = value;
             }
 
-            if (i == day2N) {
-                value2 = value;
+            if (i == finishDayN) {
+                finishValue = value;
             }
 
             // Next date
@@ -251,34 +251,72 @@ public class GraphDrawer {
             date = cal.getTime();
         }
 
+        float valueDiff = finishValue - startValue;
+
         // X-coordinates of two vertical lines
-        int x1 = getCanvasXByDayN(day1N - 1);
-        int x2 = getCanvasXByDayN(day2N);
+        int xMin = getCanvasXByDayN(startDayN - 1);
+        int xMax = getCanvasXByDayN(finishDayN);
 
         // Y-coordinates of two horizontal lines
-        int y1, y2;
-        boolean isNegativeDifference = false;
-        if (value1 <= value2) {
-            y1 = getCanvasYByValue(value2);
-            y2 = getCanvasYByValue(value1);
+        int yMin, yMax;
+        if (0 <= valueDiff) {
+            yMin = getCanvasYByValue(finishValue);
+            yMax = getCanvasYByValue(startValue);
         } else {
-            y1 = getCanvasYByValue(value1);
-            y2 = getCanvasYByValue(value2);
-            isNegativeDifference = true;
+            yMin = getCanvasYByValue(startValue);
+            yMax = getCanvasYByValue(finishValue);
         }
 
         // Vertical fill
-        mCanvas.drawRect(x1, mCanvasYMin, x2 + 1, mCanvasYMax + 1, mPaintSelectedDate);
+        mCanvas.drawRect(xMin, mCanvasYMin, xMax + 1, mCanvasYMax + 1, mPaintSelectedDate);
 
         // Horizontal fill
-        Paint paint = isNegativeDifference ? mPaintSelectedValueNegative : mPaintSelectedValue;
-        mCanvas.drawRect(mCanvasXMin, y1, mCanvasXMax + 1, y2 + 1, paint);
+        Paint paint = valueDiff < 0 ? mPaintSelectedValueNegative : mPaintSelectedValue;
+        mCanvas.drawRect(mCanvasXMin, yMin, mCanvasXMax + 1, yMax + 1, paint);
 
-        drawLabels();
-    }
+        // Draw pointer's labels
 
-    private void drawLabels() {
-        drawLabels(true, true, true, true);
+        DecimalFormat format = new DecimalFormat("#.#####");
+
+        int labelX = mCanvasXMin + mTickSize + mLabelTextMargin;
+
+        String topLabel = null;
+        String bottomLabel = null;
+
+
+        if (0 < valueDiff) {
+            bottomLabel = format.format(startValue);
+            topLabel = format.format(finishValue) + " (+" + format.format(valueDiff) + ")";
+        } else if (valueDiff < 0) {
+            topLabel = format.format(startValue);
+            // "\u2212" is a proper "minus" sign
+            bottomLabel = format.format(finishValue) + " (\u2212" + format.format(-valueDiff) + ")";
+        } else {
+            topLabel = format.format(finishValue);
+            // Show only one label if value has not changed
+        }
+
+        // Calculate label's positions
+        Rect bounds = new Rect();
+        mPaintLabels.getTextBounds("0", 0, 1, bounds);
+        int topLabelY = yMin - bounds.bottom - mLabelTextMargin;
+        int bottomLabelY = yMax - bounds.top + mLabelTextMargin;
+
+        // Top label
+        if (topLabel != null) {
+            mCanvas.drawText(topLabel, labelX, topLabelY, mPaintLabels);
+        }
+
+        // Bottom label
+        if (bottomLabel != null) {
+            mCanvas.drawText(bottomLabel, labelX, bottomLabelY, mPaintLabels);
+        }
+
+        drawHorizontalTickForValue(finishValue);
+        drawHorizontalTickForValue(startValue);
+
+        // TODO: temporarily disabled
+        // drawLabels();
     }
 
     private void drawLabels(
@@ -361,6 +399,10 @@ public class GraphDrawer {
             drawVerticalTickForDayN(mDateRange - 1);
             drawVerticalTickForDayN(mDateRange);
         }
+    }
+
+    private void drawLabels() {
+        drawLabels(true, true, true, true);
     }
 
     // TODO: Move this utility method outside?
