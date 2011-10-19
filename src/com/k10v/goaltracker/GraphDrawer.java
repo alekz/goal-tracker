@@ -78,7 +78,7 @@ public class GraphDrawer {
         mPaintProgress.setAntiAlias(true);
 
         mPaintSelectedDate = new Paint();
-        mPaintSelectedDate.setARGB(255, 128, 128, 128);
+        mPaintSelectedDate.setARGB(128, 255, 255, 255);
 
         mPaintSelectedValue = new Paint();
         mPaintSelectedValue.setARGB(192, 64, 128, 64);
