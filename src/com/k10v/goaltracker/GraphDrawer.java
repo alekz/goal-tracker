@@ -56,6 +56,10 @@ public class GraphDrawer {
     private Paint mPaintSelectedValueNegative;
     private Paint mPaintLabels;
 
+    // Used for different date conversions; made it a class member for
+    // performance reasons, to avoid object creation overhead
+    private Calendar mCalendar = Calendar.getInstance();
+
     public GraphDrawer(Context c) {
         context = c;
         setupPaints();
@@ -149,8 +153,14 @@ public class GraphDrawer {
     }
 
     private void drawVerticalGrid() {
+        int x0 = getCanvasXByDayN(-1);
+        int x;
         for (int i = 0; i <= mDateRange; i++) {
-            drawVerticalLineForDayN(i, mPaintVerticalGrid);
+            x = getCanvasXByDayN(i);
+            if (x != x0) {
+                drawVerticalLine(x, mPaintVerticalGrid);
+            }
+            x0 = x;
         }
     }
 
@@ -180,7 +190,9 @@ public class GraphDrawer {
             int y = getCanvasYByValue(value);
 
             // Draw progress
-            mCanvas.drawLine(x0, y0, x, y, mPaintProgress);
+            if (x != x0 || y != y0) {
+                mCanvas.drawLine(x0, y0, x, y, mPaintProgress);
+            }
 
             x0 = x;
             y0 = y;
@@ -518,10 +530,9 @@ public class GraphDrawer {
     }
 
     private Date getDateByDayN(int n) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(mMinDate);
-        calendar.add(Calendar.DAY_OF_MONTH, n - 1);
-        return calendar.getTime();
+        mCalendar.setTime(mMinDate);
+        mCalendar.add(Calendar.DAY_OF_MONTH, n - 1);
+        return mCalendar.getTime();
     }
 
     private int getCanvasYByValue(float value) {
