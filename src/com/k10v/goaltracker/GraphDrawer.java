@@ -164,15 +164,14 @@ public class GraphDrawer {
     }
 
     private void drawProgress() {
-        Calendar cal = Calendar.getInstance();
-        Date date = mMinDate;
         float value = mStartValue;
         int x0 = getCanvasXByDayN(0);
         int y0 = getCanvasYByValue(mStartValue);
 
         for (int i = 1; i <= mDateRange; i++) {
 
-            // TODO: probably should use dateString as a key instead?
+            Date date = getDateByDayN(i);
+
             if (mValues.containsKey(date)) {
                 value = mValues.get(date);
             }
@@ -182,11 +181,6 @@ public class GraphDrawer {
 
             // Draw progress
             mCanvas.drawLine(x0, y0, x, y, mPaintProgress);
-
-            // Next date
-            cal.setTime(date);
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-            date = cal.getTime();
 
             x0 = x;
             y0 = y;
@@ -224,14 +218,13 @@ public class GraphDrawer {
             finishDayN = mDateRange;
         }
 
-        Calendar cal = Calendar.getInstance();
-        Date date = mMinDate;
-
         float value = mStartValue;
         float startValue = value;
         float finishValue = value;
 
         for (int i = 1; i <= finishDayN; i++) {
+
+            Date date = getDateByDayN(i);
 
             if (mValues.containsKey(date)) {
                 value = mValues.get(date);
@@ -244,11 +237,6 @@ public class GraphDrawer {
             if (i == finishDayN) {
                 finishValue = value;
             }
-
-            // Next date
-            cal.setTime(date);
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-            date = cal.getTime();
         }
 
         float valueDiff = finishValue - startValue;
@@ -274,69 +262,137 @@ public class GraphDrawer {
         Paint paint = valueDiff < 0 ? mPaintSelectedValueNegative : mPaintSelectedValue;
         mCanvas.drawRect(mCanvasXMin, yMin, mCanvasXMax + 1, yMax + 1, paint);
 
-        // Build pointer's labels
+        // Build pointer's value labels
 
-        String topLabel;
-        String bottomLabel;
+        String topValueLabel;
+        String bottomValueLabel;
 
         if (0 < valueDiff) {
-            bottomLabel = formatNumber(startValue);
-            topLabel = formatNumber(finishValue) + " (" + formatNumber(valueDiff, true) + ")";
+            bottomValueLabel = formatNumber(startValue);
+            topValueLabel = formatNumber(finishValue) + " (" + formatNumber(valueDiff, true) + ")";
         } else if (valueDiff < 0) {
-            topLabel = formatNumber(startValue);
+            topValueLabel = formatNumber(startValue);
             // "\u2212" is a proper "minus" sign
-            bottomLabel = formatNumber(finishValue) + " (" + formatNumber(valueDiff, true) + ")";
+            bottomValueLabel = formatNumber(finishValue) + " (" + formatNumber(valueDiff, true) + ")";
         } else {
-            topLabel = formatNumber(finishValue);
+            topValueLabel = formatNumber(finishValue);
             // Show only one label if value has not changed
-            bottomLabel = null;
+            bottomValueLabel = null;
         }
 
         // Calculate label's positions (when calculating labels' heights, we
         // don't really care about the real bounds of the labels, only about
         // height of a digit)
+        Rect digitBounds = new Rect();
         Rect bounds = new Rect();
-        mPaintLabels.getTextBounds("0", 0, 1, bounds);
-        int topLabelY = yMin - bounds.bottom - mLabelTextMargin;
-        int bottomLabelY = yMax - bounds.top + mLabelTextMargin;
+        mPaintLabels.getTextBounds("0", 0, 1, digitBounds);
+        int topLabelY = yMin - digitBounds.bottom - mLabelTextMargin;
+        int bottomLabelY = yMax - digitBounds.top + mLabelTextMargin;
 
         // Check labels' bounds; if they don't fit into the drawing area,
         // combine them into one label
         final String combineLabelsSeparator = "...";
-        int labelHeight = bounds.bottom - bounds.top;
-        if (topLabel != null && topLabelY - labelHeight - mLabelTextMargin < mCanvasYMin) {
+        int labelHeight = digitBounds.bottom - digitBounds.top;
+        if (topValueLabel != null && topLabelY - labelHeight - mLabelTextMargin < mCanvasYMin) {
 
             // Move top label to the bottom when it is too close to the border
             if (0 < valueDiff) {
-                bottomLabel = bottomLabel + combineLabelsSeparator + topLabel;
+                bottomValueLabel = bottomValueLabel + combineLabelsSeparator + topValueLabel;
             } else if (valueDiff < 0) {
-                bottomLabel = topLabel + combineLabelsSeparator + bottomLabel;
+                bottomValueLabel = topValueLabel + combineLabelsSeparator + bottomValueLabel;
             } else {
-                bottomLabel = topLabel;
+                bottomValueLabel = topValueLabel;
             }
-            topLabel = null;
+            topValueLabel = null;
 
-        } else if (bottomLabel != null && mCanvasYMax < bottomLabelY + mLabelTextMargin) {
+        } else if (bottomValueLabel != null && mCanvasYMax < bottomLabelY + mLabelTextMargin) {
 
             // Move bottom label to the top when it is too close to the border
             if (0 < valueDiff) {
-                topLabel = bottomLabel + combineLabelsSeparator + topLabel;
+                topValueLabel = bottomValueLabel + combineLabelsSeparator + topValueLabel;
             } else if (valueDiff < 0) {
-                topLabel = topLabel + combineLabelsSeparator + bottomLabel;
+                topValueLabel = topValueLabel + combineLabelsSeparator + bottomValueLabel;
             } else {
                 // Nothing to change, we don't have bottom label in this case
             }
-            bottomLabel = null;
+            bottomValueLabel = null;
 
+        }
+
+        // Build pointer's date labels
+        String leftDateLabel = null;
+        String rightDateLabel = null;
+        String middleDateLabel = null;
+
+        int leftDateX = 0;
+        int rightDateX = 0;
+        int middleDateX = 0;
+
+        if (startDayN == finishDayN) {
+
+            // Only one day is selected
+
+            middleDateLabel = formatDate(getDateByDayN(finishDayN));
+
+        } else {
+
+            // Date range is selected
+
+            leftDateLabel = formatDate(getDateByDayN(startDayN));
+            rightDateLabel = formatDate(getDateByDayN(finishDayN));
+
+            mPaintLabels.getTextBounds(rightDateLabel, 0, rightDateLabel.length(), bounds);
+            rightDateX = getCanvasXByDayN(finishDayN) - bounds.right;
+
+            mPaintLabels.getTextBounds(leftDateLabel, 0, leftDateLabel.length(), bounds);
+            leftDateX = getCanvasXByDayN(startDayN - 1) - bounds.left;
+            int leftDateWidth = bounds.right - bounds.left;
+
+            // Check if left and right labels are located too close to each
+            // other or even overlap
+            if (rightDateX <= leftDateX + leftDateWidth + 2 * mLabelTextMargin) {
+                // In this case combine them to a single label
+                // "\u2013" - endash; "\u2014" - emdash
+                middleDateLabel = leftDateLabel + " \u2014 " + rightDateLabel;
+                leftDateLabel = null;
+                rightDateLabel = null;
+            }
+
+        }
+
+        // Calculate and correct (if necessary) position of the middle label
+        if (middleDateLabel != null) {
+            mPaintLabels.getTextBounds(middleDateLabel, 0, middleDateLabel.length(), bounds);
+            int middleDateWidth = bounds.right - bounds.left;
+            middleDateX = (
+                    getCanvasXByDayN(startDayN - 1) +
+                    getCanvasXByDayN(finishDayN) -
+                    middleDateWidth
+                    ) / 2;
+            if (middleDateX < mCanvasXMin) {
+                middleDateX = mCanvasXMin;
+            } else if (mCanvasXMax < middleDateX + middleDateWidth) {
+                middleDateX = mCanvasXMax - bounds.right;
+            }
         }
 
         // Draw the labels
-        int labelX = mCanvasXMin + mTickSize + mLabelTextMargin;
-        if (topLabel != null) {
-            mCanvas.drawText(topLabel, labelX, topLabelY, mPaintLabels);
+        int valueLabelX = mCanvasXMin + mTickSize + mLabelTextMargin;
+        int dateLabelY = mCanvasYMax - digitBounds.top + mTickSize + mLabelTextMargin;
+        if (topValueLabel != null) {
+            mCanvas.drawText(topValueLabel, valueLabelX, topLabelY, mPaintLabels);
         }
-        if (bottomLabel != null) {
-            mCanvas.drawText(bottomLabel, labelX, bottomLabelY, mPaintLabels);
+        if (bottomValueLabel != null) {
+            mCanvas.drawText(bottomValueLabel, valueLabelX, bottomLabelY, mPaintLabels);
+        }
+        if (leftDateLabel != null) {
+            mCanvas.drawText(leftDateLabel, leftDateX, dateLabelY, mPaintLabels);
+        }
+        if (rightDateLabel != null) {
+            mCanvas.drawText(rightDateLabel, rightDateX, dateLabelY, mPaintLabels);
+        }
+        if (middleDateLabel != null) {
+            mCanvas.drawText(middleDateLabel, middleDateX, dateLabelY, mPaintLabels);
         }
 
         // Draw the ticks
@@ -468,6 +524,13 @@ public class GraphDrawer {
 
     private String formatNumber(float number) {
         return formatNumber(number, false);
+    }
+
+    private Date getDateByDayN(int n) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(mMinDate);
+        calendar.add(Calendar.DAY_OF_MONTH, n - 1);
+        return calendar.getTime();
     }
 
     private int getCanvasYByValue(float value) {
