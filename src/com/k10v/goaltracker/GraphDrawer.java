@@ -398,11 +398,6 @@ public class GraphDrawer {
         // Draw the ticks
         drawHorizontalTickForValue(finishValue);
         drawHorizontalTickForValue(startValue);
-        drawVerticalTickForDayN(startDayN);
-        drawVerticalTickForDayN(finishDayN);
-
-        // TODO: temporarily (?) disabled
-        // drawLabels();
     }
 
     private void drawLabels(
@@ -455,8 +450,6 @@ public class GraphDrawer {
                     x,
                     mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
                     mPaintLabels);
-
-            drawVerticalTickForDayN(1);
         }
 
         // Max date
@@ -480,8 +473,6 @@ public class GraphDrawer {
                     x,
                     mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
                     mPaintLabels);
-
-            drawVerticalTickForDayN(mDateRange);
         }
     }
 
@@ -562,18 +553,6 @@ public class GraphDrawer {
 
     private void drawVerticalLineForDayN(int n, Paint paint) {
         drawVerticalLine(getCanvasXByDayN(n), paint);
-    }
-
-    private void drawVerticalTickForDayN(int n) {
-
-        // It's always two ticks for one day
-        int x;
-
-        x = getCanvasXByDayN(n);
-        mCanvas.drawLine(x, mCanvasYMax, x, mCanvasYMax + mTickSize, mPaintAxes);
-
-        x = getCanvasXByDayN(n - 1);
-        mCanvas.drawLine(x, mCanvasYMax, x, mCanvasYMax + mTickSize, mPaintAxes);
     }
 
     private void drawHorizontalTickForValue(float value) {
