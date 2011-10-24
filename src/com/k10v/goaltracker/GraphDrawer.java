@@ -20,7 +20,7 @@ public class GraphDrawer {
     private final int mLabelTextSize = 16;
     private final int mTickSize = 5;
 
-    private Context context;
+    private Context mContext;
 
     private Canvas mCanvas;
 
@@ -61,7 +61,7 @@ public class GraphDrawer {
     private Calendar mCalendar = Calendar.getInstance();
 
     public GraphDrawer(Context c) {
-        context = c;
+        mContext = c;
         setupPaints();
     }
 
@@ -280,14 +280,14 @@ public class GraphDrawer {
         String bottomValueLabel;
 
         if (0 < valueDiff) {
-            bottomValueLabel = formatNumber(startValue);
-            topValueLabel = formatNumber(finishValue) + " (" + formatNumber(valueDiff, true) + ")";
+            bottomValueLabel = Util.formatNumber(startValue);
+            topValueLabel = Util.formatNumber(finishValue) + " (" + Util.formatNumber(valueDiff, true) + ")";
         } else if (valueDiff < 0) {
-            topValueLabel = formatNumber(startValue);
+            topValueLabel = Util.formatNumber(startValue);
             // "\u2212" is a proper "minus" sign
-            bottomValueLabel = formatNumber(finishValue) + " (" + formatNumber(valueDiff, true) + ")";
+            bottomValueLabel = Util.formatNumber(finishValue) + " (" + Util.formatNumber(valueDiff, true) + ")";
         } else {
-            topValueLabel = formatNumber(finishValue);
+            topValueLabel = Util.formatNumber(finishValue);
             // Show only one label if value has not changed
             bottomValueLabel = null;
         }
@@ -344,14 +344,14 @@ public class GraphDrawer {
 
             // Only one day is selected
 
-            middleDateLabel = formatDate(getDateByDayN(finishDayN));
+            middleDateLabel = Util.formatDate(getDateByDayN(finishDayN), mContext);
 
         } else {
 
             // Date range is selected
 
-            leftDateLabel = formatDate(getDateByDayN(startDayN));
-            rightDateLabel = formatDate(getDateByDayN(finishDayN));
+            leftDateLabel = Util.formatDate(getDateByDayN(startDayN), mContext);
+            rightDateLabel = Util.formatDate(getDateByDayN(finishDayN), mContext);
 
             mPaintLabels.getTextBounds(rightDateLabel, 0, rightDateLabel.length(), bounds);
             rightDateX = getCanvasXByDayN(finishDayN) - bounds.right;
@@ -445,7 +445,7 @@ public class GraphDrawer {
         // Min date
         if (drawMinDate) {
 
-            text = formatDate(mMinDate);
+            text = Util.formatDate(mMinDate, mContext);
             mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
 
             // Try to center the label against date column, but adjust label's
@@ -467,7 +467,7 @@ public class GraphDrawer {
         // Max date
         if (drawMaxDate) {
 
-            text = formatDate(mMaxDate);
+            text = Util.formatDate(mMaxDate, mContext);
             mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
 
             // Try to center the label against date column, but adjust label's
@@ -490,43 +490,6 @@ public class GraphDrawer {
 
     private void drawLabels() {
         drawLabels(true, true, true, true);
-    }
-
-    // TODO: Move this utility method outside?
-    private String formatDate(Date date) {
-
-        Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-
-        if (calendar.equals(today)) {
-            return context.getString(R.string.date_today);
-        }
-
-        String format = calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) ? "MMM d" : "MMM d, yyyy";
-        return android.text.format.DateFormat.format(format, date).toString();
-    }
-
-    // TODO: Move this utility method outside?
-    private String formatNumber(float number, boolean withPlusSign) {
-        final DecimalFormat format = new DecimalFormat("#.#####");
-        if (0 < number) {
-            return (withPlusSign ? "+" : "") + format.format(number);
-        } else if (number < 0) {
-            // "\u2212" is a proper "minus" sign
-            return "\u2212" + format.format(-number);
-        } else {
-            return "0";
-        }
-    }
-
-    private String formatNumber(float number) {
-        return formatNumber(number, false);
     }
 
     private Date getDateByDayN(int n) {
