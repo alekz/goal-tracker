@@ -2,18 +2,20 @@ package com.k10v.goaltracker;
 
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.TextView;
 
 public class ReportList extends ListActivity {
 
@@ -254,8 +256,31 @@ public class ReportList extends ListActivity {
                 R.id.report_row_value
         };
 
-        SimpleCursorAdapter reports = new SimpleCursorAdapter(this,
-                R.layout.report_row, mReportsCursor, from, to);
-        setListAdapter(reports);
+        SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(
+                this, R.layout.report_row, mReportsCursor, from, to);
+
+        final Context context = this;
+
+        cursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+
+                if (columnIndex == cursor.getColumnIndexOrThrow(ReportPeer.KEY_DATE)) {
+                    TextView tv = (TextView) view;
+                    String sqlDateString = cursor.getString(columnIndex);
+                    tv.setText(Util.formatDate(sqlDateString, context));
+                    return true;
+                }
+
+                if (columnIndex == cursor.getColumnIndexOrThrow(ReportPeer.KEY_VALUE)) {
+                    TextView tv = (TextView) view;
+                    tv.setText(Util.formatNumber(cursor.getFloat(columnIndex)));
+                    return true;
+                }
+
+                return false;
+            }
+        });
+        setListAdapter(cursorAdapter);
     }
 }
