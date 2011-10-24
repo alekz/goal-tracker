@@ -418,11 +418,10 @@ public class GraphDrawer {
 
         Rect bounds = new Rect();
         String text;
-        DecimalFormat format = new DecimalFormat("#.#####");
 
         // Min value
         if (drawMinValue) {
-            text = format.format(mMinValue);
+            text = Util.formatNumber(mMinValue);
             mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
             mCanvas.drawText(text,
                     mCanvasXMin + mLabelTextMargin,
@@ -433,7 +432,7 @@ public class GraphDrawer {
 
         // Max value
         if (drawMaxValue) {
-            text = format.format(mMaxValue);
+            text = Util.formatNumber(mMaxValue);
             mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
             mCanvas.drawText(text,
                     mCanvasXMin + mTickSize + mLabelTextMargin,
