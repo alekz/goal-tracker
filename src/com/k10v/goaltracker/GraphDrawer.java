@@ -147,7 +147,11 @@ public class GraphDrawer {
         mCanvas.drawColor(Color.BLACK);
         drawVerticalGrid();
         drawCurrentValue();
-        drawPointerAndLabels();
+        if (mIsTouched) {
+            drawPointer();
+        } else {
+            drawLabels();
+        }
         drawAxes();
         drawProgress();
     }
@@ -199,10 +203,9 @@ public class GraphDrawer {
         }
     }
 
-    private void drawPointerAndLabels() {
+    private void drawPointer() {
 
         if (!mIsTouched) {
-            drawLabels();
             return;
         }
 
@@ -412,83 +415,71 @@ public class GraphDrawer {
         drawHorizontalTickForValue(startValue);
     }
 
-    private void drawLabels(
-            boolean drawMinValue, boolean drawMaxValue,
-            boolean drawMinDate, boolean drawMaxDate) {
+    private void drawLabels() {
 
         Rect bounds = new Rect();
         String text;
 
-        // Min value
-        if (drawMinValue) {
-            text = Util.formatNumber(mMinValue);
-            mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
-            mCanvas.drawText(text,
-                    mCanvasXMin + mLabelTextMargin,
-                    mCanvasYMax - bounds.bottom - mLabelTextMargin,
-                    mPaintLabels);
-            drawHorizontalTickForValue(mMinValue);
+        // == Min value ==
+
+        text = Util.formatNumber(mMinValue);
+        mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
+        mCanvas.drawText(text,
+                mCanvasXMin + mLabelTextMargin,
+                mCanvasYMax - bounds.bottom - mLabelTextMargin,
+                mPaintLabels);
+        drawHorizontalTickForValue(mMinValue);
+
+        // == Max value ==
+
+        text = Util.formatNumber(mMaxValue);
+        mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
+        mCanvas.drawText(text,
+                mCanvasXMin + mTickSize + mLabelTextMargin,
+                mCanvasYMin - bounds.top,
+                mPaintLabels);
+        drawHorizontalTickForValue(mMaxValue);
+
+        // == Min date ==
+
+        text = Util.formatDate(mMinDate, mContext);
+        mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
+
+        // Try to center the label against date column, but adjust label's
+        // position if there is not enough space
+        int minDateX = (
+                (getCanvasXByDayN(0) + getCanvasXByDayN(1)) -
+                (bounds.right - bounds.left)
+                ) / 2;
+        if (minDateX < 0) {
+            minDateX = mCanvasXMin;
         }
 
-        // Max value
-        if (drawMaxValue) {
-            text = Util.formatNumber(mMaxValue);
-            mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
-            mCanvas.drawText(text,
-                    mCanvasXMin + mTickSize + mLabelTextMargin,
-                    mCanvasYMin - bounds.top,
-                    mPaintLabels);
-            drawHorizontalTickForValue(mMaxValue);
+        mCanvas.drawText(text,
+                minDateX,
+                mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
+                mPaintLabels);
+
+        // == Max date ==
+
+        text = Util.formatDate(mMaxDate, mContext);
+        mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
+
+        // Try to center the label against date column, but adjust label's
+        // position if there is not enough space
+        int maxDateWidth = bounds.right - bounds.left;
+        int maxDateX = (
+                (getCanvasXByDayN(mDateRange - 1) + getCanvasXByDayN(mDateRange)) -
+                (bounds.right + bounds.left)
+                ) / 2;
+        if (mCanvasXMax < maxDateX + maxDateWidth) {
+            maxDateX = mCanvasXMax - bounds.right;
         }
 
-        // Min date
-        if (drawMinDate) {
-
-            text = Util.formatDate(mMinDate, mContext);
-            mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
-
-            // Try to center the label against date column, but adjust label's
-            // position if there is not enough space
-            int x = (
-                    (getCanvasXByDayN(0) + getCanvasXByDayN(1)) -
-                    (bounds.right - bounds.left)
-                    ) / 2;
-            if (x < 0) {
-                x = mCanvasXMin;
-            }
-
-            mCanvas.drawText(text,
-                    x,
-                    mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
-                    mPaintLabels);
-        }
-
-        // Max date
-        if (drawMaxDate) {
-
-            text = Util.formatDate(mMaxDate, mContext);
-            mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
-
-            // Try to center the label against date column, but adjust label's
-            // position if there is not enough space
-            int w = bounds.right - bounds.left;
-            int x = (
-                    (getCanvasXByDayN(mDateRange - 1) + getCanvasXByDayN(mDateRange)) -
-                    (bounds.right + bounds.left)
-                    ) / 2;
-            if (mCanvasXMax < x + w) {
-                x = mCanvasXMax - bounds.right;
-            }
-
-            mCanvas.drawText(text,
-                    x,
-                    mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
-                    mPaintLabels);
-        }
-    }
-
-    private void drawLabels() {
-        drawLabels(true, true, true, true);
+        mCanvas.drawText(text,
+                maxDateX,
+                mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
+                mPaintLabels);
     }
 
     private Date getDateByDayN(int n) {
