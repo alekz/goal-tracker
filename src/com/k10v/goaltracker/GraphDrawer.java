@@ -36,6 +36,7 @@ public class GraphDrawer {
 
     private float mStartValue;
     private float mLastValue;
+    private Float mTargetValue;
 
     private Date mMinDate;
     private Date mMaxDate;
@@ -133,6 +134,10 @@ public class GraphDrawer {
 
     public void setLastValue(float value) {
         mLastValue = value;
+    }
+
+    public void setTargetValue(Float value) {
+        mTargetValue = value;
     }
 
     public void setPointer(boolean isTouched, float x1, float y1, float x2, float y2) {
@@ -233,10 +238,10 @@ public class GraphDrawer {
             finishDayN = mDateRange;
         }
 
+        // Find min/max values for the selected date range
         float value = mStartValue;
         float startValue = value;
         float finishValue = value;
-
         for (int i = 1; i <= finishDayN; i++) {
 
             Date date = getDateByDayN(i);
@@ -254,6 +259,7 @@ public class GraphDrawer {
             }
         }
 
+        // Difference in value between start and finish dates
         float valueDiff = finishValue - startValue;
 
         // X-coordinates of two vertical lines
@@ -270,29 +276,58 @@ public class GraphDrawer {
             yMax = getCanvasYByValue(finishValue);
         }
 
-        // Vertical fill
-        mCanvas.drawRect(xMin, mCanvasYMin, xMax + 1, mCanvasYMax + 1, mPaintSelectedDate);
-
-        // Horizontal fill
-        Paint paint = valueDiff < 0 ? mPaintSelectedValueNegative : mPaintSelectedValue;
-        mCanvas.drawRect(mCanvasXMin, yMin, mCanvasXMax + 1, yMax + 1, paint);
-
-        // Build pointer's value labels
+        // == Value labels ==
 
         String topValueLabel;
         String bottomValueLabel;
 
+        String topPercentageLabel;
+        String bottomPercentageLabel;
+
+        boolean showPercentageLabels = (mTargetValue != null) && (mTargetValue != mStartValue);
+        float startPercentage = 0;
+        float finishPercentage = 0;
+        float percentageDiff = 0;
+
+        if (showPercentageLabels) {
+            startPercentage = Math.round(1000 * (startValue - mStartValue) / (mTargetValue - mStartValue)) / 10f;
+            finishPercentage = Math.round(1000 * (finishValue - mStartValue) / (mTargetValue - mStartValue)) / 10f;
+            percentageDiff = mTargetValue - mStartValue;
+        }
+
         if (0 < valueDiff) {
+
             bottomValueLabel = Util.formatNumber(startValue);
-            topValueLabel = Util.formatNumber(finishValue) + " (" + Util.formatNumber(valueDiff, true) + ")";
+
+            topValueLabel = Util.formatNumber(finishValue) +
+                    " (" + Util.formatNumber(valueDiff, true) + ")";
+
+            bottomPercentageLabel = Util.formatNumber(startPercentage) + "%";
+
+            topPercentageLabel = Util.formatNumber(finishPercentage) + "%" +
+                    " (" + Util.formatNumber(percentageDiff, true) + ")";
+
         } else if (valueDiff < 0) {
+
             topValueLabel = Util.formatNumber(startValue);
-            // "\u2212" is a proper "minus" sign
-            bottomValueLabel = Util.formatNumber(finishValue) + " (" + Util.formatNumber(valueDiff, true) + ")";
+
+            bottomValueLabel = Util.formatNumber(finishValue) +
+                    " (" + Util.formatNumber(valueDiff, true) + ")";
+
+            topPercentageLabel = Util.formatNumber(startPercentage) + "%";
+
+            bottomPercentageLabel = Util.formatNumber(finishPercentage) + "%" +
+                    " (" + Util.formatNumber(percentageDiff, true) + ")";
+
         } else {
+
             topValueLabel = Util.formatNumber(finishValue);
+            topPercentageLabel = Util.formatNumber(finishPercentage) + "%";
+
             // Show only one label if value has not changed
             bottomValueLabel = null;
+            bottomPercentageLabel = null;
+
         }
 
         // Calculate label's positions (when calculating labels' heights, we
@@ -313,26 +348,35 @@ public class GraphDrawer {
             // Move top label to the bottom when it is too close to the border
             if (0 < valueDiff) {
                 bottomValueLabel = bottomValueLabel + combineLabelsSeparator + topValueLabel;
+                bottomPercentageLabel = bottomPercentageLabel + combineLabelsSeparator + topPercentageLabel;
             } else if (valueDiff < 0) {
                 bottomValueLabel = topValueLabel + combineLabelsSeparator + bottomValueLabel;
+                bottomPercentageLabel = topPercentageLabel + combineLabelsSeparator + bottomPercentageLabel;
             } else {
                 bottomValueLabel = topValueLabel;
+                bottomPercentageLabel = topPercentageLabel;
             }
             topValueLabel = null;
+            topPercentageLabel = null;
 
         } else if (bottomValueLabel != null && mCanvasYMax < bottomLabelY + mLabelTextMargin) {
 
             // Move bottom label to the top when it is too close to the border
             if (0 < valueDiff) {
                 topValueLabel = bottomValueLabel + combineLabelsSeparator + topValueLabel;
+                topPercentageLabel = bottomPercentageLabel + combineLabelsSeparator + topPercentageLabel;
             } else if (valueDiff < 0) {
                 topValueLabel = topValueLabel + combineLabelsSeparator + bottomValueLabel;
+                topPercentageLabel = topPercentageLabel + combineLabelsSeparator + bottomPercentageLabel;
             } else {
                 // Nothing to change, we don't have bottom label in this case
             }
             bottomValueLabel = null;
+            bottomPercentageLabel = null;
 
         }
+
+        // == Date labels ==
 
         // Build pointer's date labels
         String leftDateLabel = null;
@@ -391,6 +435,15 @@ public class GraphDrawer {
             }
         }
 
+        // == Drawing ==
+
+        // Vertical fill
+        mCanvas.drawRect(xMin, mCanvasYMin, xMax + 1, mCanvasYMax + 1, mPaintSelectedDate);
+
+        // Horizontal fill
+        Paint paint = valueDiff < 0 ? mPaintSelectedValueNegative : mPaintSelectedValue;
+        mCanvas.drawRect(mCanvasXMin, yMin, mCanvasXMax + 1, yMax + 1, paint);
+
         // Draw the labels
         int valueLabelX = mCanvasXMin + mTickSize + mLabelTextMargin;
         int dateLabelY = mCanvasYMax - digitBounds.top + mTickSize + mLabelTextMargin;
@@ -399,6 +452,16 @@ public class GraphDrawer {
         }
         if (bottomValueLabel != null) {
             mCanvas.drawText(bottomValueLabel, valueLabelX, bottomLabelY, mPaintLabels);
+        }
+        if (topPercentageLabel != null) {
+            mPaintLabels.getTextBounds(topPercentageLabel, 0, topPercentageLabel.length(), bounds);
+            int labelX = mCanvasXMax - mLabelTextMargin - bounds.right;
+            mCanvas.drawText(topPercentageLabel, labelX, topLabelY, mPaintLabels);
+        }
+        if (bottomPercentageLabel != null) {
+            mPaintLabels.getTextBounds(bottomPercentageLabel, 0, bottomPercentageLabel.length(), bounds);
+            int labelX = mCanvasXMax - mLabelTextMargin - bounds.right;
+            mCanvas.drawText(bottomPercentageLabel, labelX, bottomLabelY, mPaintLabels);
         }
         if (leftDateLabel != null) {
             mCanvas.drawText(leftDateLabel, leftDateX, dateLabelY, mPaintLabels);

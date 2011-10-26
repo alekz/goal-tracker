@@ -123,6 +123,7 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         mGraph.setValues(mValues);
         mGraph.setStartValue(mStartValue);
         mGraph.setLastValue(mLastValue);
+        mGraph.setTargetValue(mTargetValue);
         mGraph.setValueRange(minValue, maxValue);
         mGraph.setDateRange(mMinDate, maxDate);
         mGraph.setPointer(mIsTouched, mPointer1X, mPointer1Y, mPointer2X, mPointer2Y);
