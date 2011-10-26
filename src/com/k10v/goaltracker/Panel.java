@@ -145,8 +145,9 @@ public class Panel extends SurfaceView implements SurfaceHolder.Callback {
         // Get information about the task
         mMinValue = mMaxValue = mStartValue = taskCursor.getFloat(
                 taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_START_VALUE));
-        mTargetValue = taskCursor.getFloat(
-                taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE));
+
+        int targetValueIndex = taskCursor.getColumnIndexOrThrow(TaskPeer.KEY_TARGET_VALUE);
+        mTargetValue = taskCursor.isNull(targetValueIndex) ? null : taskCursor.getFloat(targetValueIndex);
 
         // Process list of reports
 

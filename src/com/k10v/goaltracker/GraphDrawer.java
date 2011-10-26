@@ -174,8 +174,11 @@ public class GraphDrawer {
     }
 
     private void drawAxes() {
-        drawHorizontalLineForValue(mStartValue, mPaintAxes);
         drawVerticalLine(mCanvasXMin, mPaintAxes);
+        drawHorizontalLineForValue(mStartValue, mPaintAxes);
+        if (mTargetValue != null) {
+            drawHorizontalLineForValue(mTargetValue, mPaintAxes);
+        }
     }
 
     private void drawCurrentValue() {
@@ -292,7 +295,7 @@ public class GraphDrawer {
         if (showPercentageLabels) {
             startPercentage = Math.round(1000 * (startValue - mStartValue) / (mTargetValue - mStartValue)) / 10f;
             finishPercentage = Math.round(1000 * (finishValue - mStartValue) / (mTargetValue - mStartValue)) / 10f;
-            percentageDiff = mTargetValue - mStartValue;
+            percentageDiff = Math.round(10 * (finishPercentage - startPercentage)) / 10f;
         }
 
         if (0 < valueDiff) {
@@ -445,30 +448,38 @@ public class GraphDrawer {
         mCanvas.drawRect(mCanvasXMin, yMin, mCanvasXMax + 1, yMax + 1, paint);
 
         // Draw the labels
-        int valueLabelX = mCanvasXMin + mTickSize + mLabelTextMargin;
+
+        int valueLabelX = mCanvasXMin + mLabelTextMargin;
         int dateLabelY = mCanvasYMax - digitBounds.top + mTickSize + mLabelTextMargin;
+
         if (topValueLabel != null) {
             mCanvas.drawText(topValueLabel, valueLabelX, topLabelY, mPaintLabels);
         }
+
         if (bottomValueLabel != null) {
             mCanvas.drawText(bottomValueLabel, valueLabelX, bottomLabelY, mPaintLabels);
         }
-        if (topPercentageLabel != null) {
+
+        if (showPercentageLabels && topPercentageLabel != null) {
             mPaintLabels.getTextBounds(topPercentageLabel, 0, topPercentageLabel.length(), bounds);
             int labelX = mCanvasXMax - mLabelTextMargin - bounds.right;
             mCanvas.drawText(topPercentageLabel, labelX, topLabelY, mPaintLabels);
         }
-        if (bottomPercentageLabel != null) {
+
+        if (showPercentageLabels && bottomPercentageLabel != null) {
             mPaintLabels.getTextBounds(bottomPercentageLabel, 0, bottomPercentageLabel.length(), bounds);
             int labelX = mCanvasXMax - mLabelTextMargin - bounds.right;
             mCanvas.drawText(bottomPercentageLabel, labelX, bottomLabelY, mPaintLabels);
         }
+
         if (leftDateLabel != null) {
             mCanvas.drawText(leftDateLabel, leftDateX, dateLabelY, mPaintLabels);
         }
+
         if (rightDateLabel != null) {
             mCanvas.drawText(rightDateLabel, rightDateX, dateLabelY, mPaintLabels);
         }
+
         if (middleDateLabel != null) {
             mCanvas.drawText(middleDateLabel, middleDateX, dateLabelY, mPaintLabels);
         }
@@ -483,25 +494,39 @@ public class GraphDrawer {
         Rect bounds = new Rect();
         String text;
 
-        // == Min value ==
+        // == Start value ==
 
-        text = Util.formatNumber(mMinValue);
+        text = Util.formatNumber(mStartValue);
         mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
         mCanvas.drawText(text,
                 mCanvasXMin + mLabelTextMargin,
-                mCanvasYMax - bounds.bottom - mLabelTextMargin,
+                getCanvasYByValue(mStartValue) - bounds.bottom - mLabelTextMargin,
                 mPaintLabels);
-        drawHorizontalTickForValue(mMinValue);
+        drawHorizontalTickForValue(mStartValue);
+
+        // == Target value ==
+
+        if (mTargetValue != null) {
+            text = Util.formatNumber(mTargetValue);
+            mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
+            mCanvas.drawText(text,
+                    mCanvasXMin + mLabelTextMargin,
+                    getCanvasYByValue(mTargetValue) - bounds.top + mLabelTextMargin,
+                    mPaintLabels);
+            drawHorizontalTickForValue(mTargetValue);
+        }
 
         // == Max value ==
 
-        text = Util.formatNumber(mMaxValue);
-        mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
-        mCanvas.drawText(text,
-                mCanvasXMin + mTickSize + mLabelTextMargin,
-                mCanvasYMin - bounds.top,
-                mPaintLabels);
-        drawHorizontalTickForValue(mMaxValue);
+        if (mTargetValue == null) {
+            text = Util.formatNumber(mMaxValue);
+            mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
+            mCanvas.drawText(text,
+                    mCanvasXMin + mLabelTextMargin,
+                    mCanvasYMin - bounds.top + mLabelTextMargin,
+                    mPaintLabels);
+            drawHorizontalTickForValue(mMaxValue);
+        }
 
         // == Min date ==
 
