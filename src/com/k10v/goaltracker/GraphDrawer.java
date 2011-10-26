@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 /**
  * Class responsible for drawing a graph on the canvas
@@ -54,6 +55,7 @@ public class GraphDrawer {
     private Paint mPaintSelectedValue;
     private Paint mPaintSelectedValueNegative;
     private Paint mPaintLabels;
+    private Paint mPaintLabelsBackground;
 
     // Used for different date conversions; made it a class member for
     // performance reasons, to avoid object creation overhead
@@ -77,7 +79,7 @@ public class GraphDrawer {
 
         mPaintProgress = new Paint();
         mPaintProgress.setARGB(255, 64, 255, 64);
-        mPaintProgress.setStrokeWidth(1.5f);
+        mPaintProgress.setStrokeWidth(2.0f);
         mPaintProgress.setAntiAlias(true);
 
         mPaintSelectedDate = new Paint();
@@ -94,7 +96,10 @@ public class GraphDrawer {
         mPaintLabels.setTextSize(mLabelTextSize);
         mPaintLabels.setFakeBoldText(true);
         mPaintLabels.setAntiAlias(true);
-        mPaintLabels.setShadowLayer(5, 0, 0, Color.BLACK);
+
+        mPaintLabelsBackground = new Paint();
+        mPaintLabelsBackground.setARGB(128, 0, 0, 0);
+        mPaintLabels.setAntiAlias(true);
     }
 
     public void setCanvas(Canvas canvas) {
@@ -150,13 +155,13 @@ public class GraphDrawer {
         mCanvas.drawColor(Color.BLACK);
         drawVerticalGrid();
         drawCurrentValue();
+        drawProgress();
         if (mIsTouched) {
             drawPointer();
         } else {
             drawLabels();
         }
         drawAxes();
-        drawProgress();
     }
 
     private void drawVerticalGrid() {
@@ -452,35 +457,35 @@ public class GraphDrawer {
         int dateLabelY = mCanvasYMax - digitBounds.top + mLabelTextMargin;
 
         if (topValueLabel != null) {
-            mCanvas.drawText(topValueLabel, valueLabelX, topLabelY, mPaintLabels);
+            drawLabel(topValueLabel, valueLabelX, topLabelY);
         }
 
         if (bottomValueLabel != null) {
-            mCanvas.drawText(bottomValueLabel, valueLabelX, bottomLabelY, mPaintLabels);
+            drawLabel(bottomValueLabel, valueLabelX, bottomLabelY);
         }
 
         if (showPercentageLabels && topPercentageLabel != null) {
             mPaintLabels.getTextBounds(topPercentageLabel, 0, topPercentageLabel.length(), bounds);
             int labelX = mCanvasXMax - mLabelTextMargin - bounds.right;
-            mCanvas.drawText(topPercentageLabel, labelX, topLabelY, mPaintLabels);
+            drawLabel(topPercentageLabel, labelX, topLabelY);
         }
 
         if (showPercentageLabels && bottomPercentageLabel != null) {
             mPaintLabels.getTextBounds(bottomPercentageLabel, 0, bottomPercentageLabel.length(), bounds);
             int labelX = mCanvasXMax - mLabelTextMargin - bounds.right;
-            mCanvas.drawText(bottomPercentageLabel, labelX, bottomLabelY, mPaintLabels);
+            drawLabel(bottomPercentageLabel, labelX, bottomLabelY);
         }
 
         if (leftDateLabel != null) {
-            mCanvas.drawText(leftDateLabel, leftDateX, dateLabelY, mPaintLabels);
+            drawLabel(leftDateLabel, leftDateX, dateLabelY);
         }
 
         if (rightDateLabel != null) {
-            mCanvas.drawText(rightDateLabel, rightDateX, dateLabelY, mPaintLabels);
+            drawLabel(rightDateLabel, rightDateX, dateLabelY);
         }
 
         if (middleDateLabel != null) {
-            mCanvas.drawText(middleDateLabel, middleDateX, dateLabelY, mPaintLabels);
+            drawLabel(middleDateLabel, middleDateX, dateLabelY);
         }
     }
 
@@ -493,20 +498,18 @@ public class GraphDrawer {
 
         text = Util.formatNumber(mStartValue);
         mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
-        mCanvas.drawText(text,
+        drawLabel(text,
                 mCanvasXMin + mLabelTextMargin,
-                getCanvasYByValue(mStartValue) - bounds.bottom - mLabelTextMargin,
-                mPaintLabels);
+                getCanvasYByValue(mStartValue) - bounds.bottom - mLabelTextMargin);
 
         // == Target value ==
 
         if (mTargetValue != null) {
             text = Util.formatNumber(mTargetValue);
             mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
-            mCanvas.drawText(text,
+            drawLabel(text,
                     mCanvasXMin + mLabelTextMargin,
-                    getCanvasYByValue(mTargetValue) - bounds.top + mLabelTextMargin,
-                    mPaintLabels);
+                    getCanvasYByValue(mTargetValue) - bounds.top + mLabelTextMargin);
         }
 
         // == Max value ==
@@ -514,10 +517,9 @@ public class GraphDrawer {
         if (mTargetValue == null) {
             text = Util.formatNumber(mMaxValue);
             mPaintLabels.getTextBounds(text, 0, text.length(), bounds);
-            mCanvas.drawText(text,
+            drawLabel(text,
                     mCanvasXMin + mLabelTextMargin,
-                    mCanvasYMin - bounds.top + mLabelTextMargin,
-                    mPaintLabels);
+                    mCanvasYMin - bounds.top + mLabelTextMargin);
         }
 
         // == Min date ==
@@ -535,10 +537,9 @@ public class GraphDrawer {
             minDateX = mCanvasXMin;
         }
 
-        mCanvas.drawText(text,
+        drawLabel(text,
                 minDateX,
-                mCanvasYMax - bounds.top + mLabelTextMargin,
-                mPaintLabels);
+                mCanvasYMax - bounds.top + mLabelTextMargin);
 
         // == Max date ==
 
@@ -556,10 +557,9 @@ public class GraphDrawer {
             maxDateX = mCanvasXMax - bounds.right;
         }
 
-        mCanvas.drawText(text,
+        drawLabel(text,
                 maxDateX,
-                mCanvasYMax - bounds.top + mLabelTextMargin,
-                mPaintLabels);
+                mCanvasYMax - bounds.top + mLabelTextMargin);
     }
 
     private Date getDateByDayN(int n) {
@@ -597,5 +597,25 @@ public class GraphDrawer {
 
     private void drawVerticalLineForDayN(int n, Paint paint) {
         drawVerticalLine(getCanvasXByDayN(n), paint);
+    }
+
+    private void drawLabel(String text, int x, int y) {
+
+        Rect boundsX = new Rect();
+        mPaintLabels.getTextBounds(text, 0, text.length(), boundsX);
+
+        Rect boundsY = new Rect();
+        mPaintLabels.getTextBounds("0", 0, 1, boundsY);
+
+        int margin = mLabelTextMargin - 1;
+
+        RectF rect = new RectF(
+                x + boundsX.left - margin,
+                y + boundsY.top - margin,
+                x + boundsX.right + margin,
+                y + boundsY.bottom + margin);
+        mCanvas.drawRoundRect(rect, margin - 1, margin - 1, mPaintLabelsBackground);
+
+        mCanvas.drawText(text, x, y, mPaintLabels);
     }
 }
