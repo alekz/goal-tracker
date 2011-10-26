@@ -18,7 +18,6 @@ public class GraphDrawer {
 
     private final int mLabelTextMargin = 5;
     private final int mLabelTextSize = 16;
-    private final int mTickSize = 5;
 
     private Context mContext;
 
@@ -72,7 +71,7 @@ public class GraphDrawer {
         mPaintVerticalGrid.setARGB(255, 32, 32, 32);
 
         mPaintAxes = new Paint();
-        mPaintAxes.setARGB(255, 255, 255, 255);
+        mPaintAxes.setARGB(255, 128, 128, 128);
 
         mPaintCurrentValue = new Paint();
         mPaintCurrentValue.setARGB(255, 0, 64, 0);
@@ -175,6 +174,7 @@ public class GraphDrawer {
 
     private void drawAxes() {
         drawVerticalLine(mCanvasXMin, mPaintAxes);
+        drawVerticalLine(mCanvasXMax, mPaintAxes);
         drawHorizontalLineForValue(mStartValue, mPaintAxes);
         if (mTargetValue != null) {
             drawHorizontalLineForValue(mTargetValue, mPaintAxes);
@@ -450,7 +450,7 @@ public class GraphDrawer {
         // Draw the labels
 
         int valueLabelX = mCanvasXMin + mLabelTextMargin;
-        int dateLabelY = mCanvasYMax - digitBounds.top + mTickSize + mLabelTextMargin;
+        int dateLabelY = mCanvasYMax - digitBounds.top + mLabelTextMargin;
 
         if (topValueLabel != null) {
             mCanvas.drawText(topValueLabel, valueLabelX, topLabelY, mPaintLabels);
@@ -483,10 +483,6 @@ public class GraphDrawer {
         if (middleDateLabel != null) {
             mCanvas.drawText(middleDateLabel, middleDateX, dateLabelY, mPaintLabels);
         }
-
-        // Draw the ticks
-        drawHorizontalTickForValue(finishValue);
-        drawHorizontalTickForValue(startValue);
     }
 
     private void drawLabels() {
@@ -502,7 +498,6 @@ public class GraphDrawer {
                 mCanvasXMin + mLabelTextMargin,
                 getCanvasYByValue(mStartValue) - bounds.bottom - mLabelTextMargin,
                 mPaintLabels);
-        drawHorizontalTickForValue(mStartValue);
 
         // == Target value ==
 
@@ -513,7 +508,6 @@ public class GraphDrawer {
                     mCanvasXMin + mLabelTextMargin,
                     getCanvasYByValue(mTargetValue) - bounds.top + mLabelTextMargin,
                     mPaintLabels);
-            drawHorizontalTickForValue(mTargetValue);
         }
 
         // == Max value ==
@@ -525,7 +519,6 @@ public class GraphDrawer {
                     mCanvasXMin + mLabelTextMargin,
                     mCanvasYMin - bounds.top + mLabelTextMargin,
                     mPaintLabels);
-            drawHorizontalTickForValue(mMaxValue);
         }
 
         // == Min date ==
@@ -545,7 +538,7 @@ public class GraphDrawer {
 
         mCanvas.drawText(text,
                 minDateX,
-                mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
+                mCanvasYMax - bounds.top + mLabelTextMargin,
                 mPaintLabels);
 
         // == Max date ==
@@ -566,7 +559,7 @@ public class GraphDrawer {
 
         mCanvas.drawText(text,
                 maxDateX,
-                mCanvasYMax - bounds.top + mTickSize + mLabelTextMargin,
+                mCanvasYMax - bounds.top + mLabelTextMargin,
                 mPaintLabels);
     }
 
@@ -605,10 +598,5 @@ public class GraphDrawer {
 
     private void drawVerticalLineForDayN(int n, Paint paint) {
         drawVerticalLine(getCanvasXByDayN(n), paint);
-    }
-
-    private void drawHorizontalTickForValue(float value) {
-        int y = getCanvasYByValue(value);
-        mCanvas.drawLine(mCanvasXMin, y, mCanvasXMin + mTickSize, y, mPaintAxes);
     }
 }
