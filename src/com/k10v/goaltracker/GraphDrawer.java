@@ -1,6 +1,5 @@
 package com.k10v.goaltracker;
 
-import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
