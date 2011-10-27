@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Pair;
 
 /**
  * Class responsible for drawing a graph on the canvas
@@ -154,14 +155,12 @@ public class GraphDrawer {
     public void draw() {
         mCanvas.drawColor(Color.BLACK);
         drawVerticalGrid();
+        drawPointerSelection();
         drawCurrentValue();
-        drawProgress();
-        if (mIsTouched) {
-            drawPointer();
-        } else {
-            drawLabels();
-        }
         drawAxes();
+        drawProgress();
+        drawLabels();
+        drawPointerLabels();
     }
 
     private void drawVerticalGrid() {
@@ -215,15 +214,14 @@ public class GraphDrawer {
         }
     }
 
-    private void drawPointer() {
+    private Pair<Integer, Integer> _getPointerDateRange() {
 
         if (!mIsTouched) {
-            return;
+            return null;
         }
 
-        // Find the dates below the pointers
-        int startDayN = getDayNByCanvasX(Math.round(mPointer1X));
-        int finishDayN = getDayNByCanvasX(Math.round(mPointer2X));
+        Integer startDayN = getDayNByCanvasX(Math.round(mPointer1X));
+        Integer finishDayN = getDayNByCanvasX(Math.round(mPointer2X));
 
         // Make sure day 1 is earlier than day 2
         if (finishDayN < startDayN) {
@@ -234,7 +232,7 @@ public class GraphDrawer {
 
         // Check is pointer 1 is inside the graph
         if (startDayN <= 0 || mDateRange < startDayN) {
-            return;
+            return null;
         }
 
         // Make sure pointer 2 is inside the graph
@@ -245,11 +243,16 @@ public class GraphDrawer {
             finishDayN = mDateRange;
         }
 
+        return new Pair<Integer, Integer>(startDayN, finishDayN);
+    }
+
+    private Pair<Float, Float> _getPointerValueRange(Pair<Integer, Integer> days) {
+
         // Find min/max values for the selected date range
         float value = mStartValue;
         float startValue = value;
         float finishValue = value;
-        for (int i = 1; i <= finishDayN; i++) {
+        for (int i = 1; i <= days.second; i++) {
 
             Date date = getDateByDayN(i);
 
@@ -257,31 +260,64 @@ public class GraphDrawer {
                 value = mValues.get(date);
             }
 
-            if (i == startDayN - 1) {
+            if (i == days.first - 1) {
                 startValue = value;
             }
 
-            if (i == finishDayN) {
+            if (i == days.second) {
                 finishValue = value;
             }
         }
 
-        // Difference in value between start and finish dates
-        float valueDiff = finishValue - startValue;
+        return new Pair<Float, Float>(startValue, finishValue);
+    }
+
+    private void drawPointerSelection() {
+
+        // Find the dates below the pointers
+        Pair<Integer, Integer> days = _getPointerDateRange();
+        if (days == null) {
+            return;
+        }
+
+        // Find min/max values for the selected date range
+        Pair<Float, Float> values = _getPointerValueRange(days);
 
         // X-coordinates of two vertical lines
-        int xMin = getCanvasXByDayN(startDayN - 1);
-        int xMax = getCanvasXByDayN(finishDayN);
+        int xMin = getCanvasXByDayN(days.first - 1);
+        int xMax = getCanvasXByDayN(days.second);
 
         // Y-coordinates of two horizontal lines
-        int yMin, yMax;
-        if (0 <= valueDiff) {
-            yMin = getCanvasYByValue(finishValue);
-            yMax = getCanvasYByValue(startValue);
-        } else {
-            yMin = getCanvasYByValue(startValue);
-            yMax = getCanvasYByValue(finishValue);
+        int yMin = getCanvasYByValue(Math.max(values.first, values.second));
+        int yMax = getCanvasYByValue(Math.min(values.first, values.second));
+
+        // == Drawing ==
+
+        // Vertical fill
+        mCanvas.drawRect(xMin, mCanvasYMin, xMax + 1, mCanvasYMax + 1, mPaintSelectedDate);
+
+        // Horizontal fill
+        Paint paint = (values.first <= values.second) ? mPaintSelectedValue : mPaintSelectedValueNegative;
+        mCanvas.drawRect(mCanvasXMin, yMin, mCanvasXMax + 1, yMax + 1, paint);
+    }
+
+    private void drawPointerLabels() {
+
+        // Find the dates below the pointers
+        Pair<Integer, Integer> days = _getPointerDateRange();
+        if (days == null) {
+            return;
         }
+
+        // Find min/max values for the selected date range
+        Pair<Float, Float> values = _getPointerValueRange(days);
+
+        // Difference in value between start and finish dates
+        float valueDiff = values.second - values.first;
+
+        // Y-coordinates of two horizontal lines
+        int yMin = getCanvasYByValue(Math.max(values.first, values.second));
+        int yMax = getCanvasYByValue(Math.min(values.first, values.second));
 
         // == Value labels ==
 
@@ -297,16 +333,16 @@ public class GraphDrawer {
         float percentageDiff = 0;
 
         if (showPercentageLabels) {
-            startPercentage = Math.round(1000 * (startValue - mStartValue) / (mTargetValue - mStartValue)) / 10f;
-            finishPercentage = Math.round(1000 * (finishValue - mStartValue) / (mTargetValue - mStartValue)) / 10f;
+            startPercentage = Math.round(1000 * (values.first - mStartValue) / (mTargetValue - mStartValue)) / 10f;
+            finishPercentage = Math.round(1000 * (values.second - mStartValue) / (mTargetValue - mStartValue)) / 10f;
             percentageDiff = Math.round(10 * (finishPercentage - startPercentage)) / 10f;
         }
 
         if (0 < valueDiff) {
 
-            bottomValueLabel = Util.formatNumber(startValue);
+            bottomValueLabel = Util.formatNumber(values.first);
 
-            topValueLabel = Util.formatNumber(finishValue) +
+            topValueLabel = Util.formatNumber(values.second) +
                     " (" + Util.formatNumber(valueDiff, true) + ")";
 
             bottomPercentageLabel = Util.formatNumber(startPercentage) + "%";
@@ -316,9 +352,9 @@ public class GraphDrawer {
 
         } else if (valueDiff < 0) {
 
-            topValueLabel = Util.formatNumber(startValue);
+            topValueLabel = Util.formatNumber(values.first);
 
-            bottomValueLabel = Util.formatNumber(finishValue) +
+            bottomValueLabel = Util.formatNumber(values.second) +
                     " (" + Util.formatNumber(valueDiff, true) + ")";
 
             topPercentageLabel = Util.formatNumber(startPercentage) + "%";
@@ -328,7 +364,7 @@ public class GraphDrawer {
 
         } else {
 
-            topValueLabel = Util.formatNumber(finishValue);
+            topValueLabel = Util.formatNumber(values.second);
             topPercentageLabel = Util.formatNumber(finishPercentage) + "%";
 
             // Show only one label if value has not changed
@@ -394,24 +430,24 @@ public class GraphDrawer {
         int rightDateX = 0;
         int middleDateX = 0;
 
-        if (startDayN == finishDayN) {
+        if (days.first == days.second) {
 
             // Only one day is selected
 
-            middleDateLabel = Util.formatDate(getDateByDayN(finishDayN), mContext);
+            middleDateLabel = Util.formatDate(getDateByDayN(days.second), mContext);
 
         } else {
 
             // Date range is selected
 
-            leftDateLabel = Util.formatDate(getDateByDayN(startDayN), mContext);
-            rightDateLabel = Util.formatDate(getDateByDayN(finishDayN), mContext);
+            leftDateLabel = Util.formatDate(getDateByDayN(days.first), mContext);
+            rightDateLabel = Util.formatDate(getDateByDayN(days.second), mContext);
 
             mPaintLabels.getTextBounds(rightDateLabel, 0, rightDateLabel.length(), bounds);
-            rightDateX = getCanvasXByDayN(finishDayN) - bounds.right;
+            rightDateX = getCanvasXByDayN(days.second) - bounds.right;
 
             mPaintLabels.getTextBounds(leftDateLabel, 0, leftDateLabel.length(), bounds);
-            leftDateX = getCanvasXByDayN(startDayN - 1) - bounds.left;
+            leftDateX = getCanvasXByDayN(days.first - 1) - bounds.left;
             int leftDateWidth = bounds.right - bounds.left;
 
             // Check if left and right labels are located too close to each
@@ -431,8 +467,7 @@ public class GraphDrawer {
             mPaintLabels.getTextBounds(middleDateLabel, 0, middleDateLabel.length(), bounds);
             int middleDateWidth = bounds.right - bounds.left;
             middleDateX = (
-                    getCanvasXByDayN(startDayN - 1) +
-                    getCanvasXByDayN(finishDayN) -
+                    getCanvasXByDayN(days.first - 1) + getCanvasXByDayN(days.second) -
                     middleDateWidth
                     ) / 2;
             if (middleDateX < mCanvasXMin) {
@@ -443,13 +478,6 @@ public class GraphDrawer {
         }
 
         // == Drawing ==
-
-        // Vertical fill
-        mCanvas.drawRect(xMin, mCanvasYMin, xMax + 1, mCanvasYMax + 1, mPaintSelectedDate);
-
-        // Horizontal fill
-        Paint paint = valueDiff < 0 ? mPaintSelectedValueNegative : mPaintSelectedValue;
-        mCanvas.drawRect(mCanvasXMin, yMin, mCanvasXMax + 1, yMax + 1, paint);
 
         // Draw the labels
 
@@ -490,6 +518,10 @@ public class GraphDrawer {
     }
 
     private void drawLabels() {
+
+        if (mIsTouched) {
+            return;
+        }
 
         Rect bounds = new Rect();
         String text;
